@@ -16,9 +16,6 @@ export default function DrawerLayout() {
         <Drawer.Screen name="payments"     options={{ drawerLabel: 'Payments' }} />
         <Drawer.Screen name="trash"        options={{ drawerLabel: 'Trash' }} />
         <Drawer.Screen name="settings"     options={{ drawerLabel: 'Settings' }} />
-        <Drawer.Screen name="add-customer" options={{ drawerItemStyle: { display: 'none' } }} />
-        <Drawer.Screen name="add-order"    options={{ drawerItemStyle: { display: 'none' } }} />
-        <Drawer.Screen name="orders/[id]"  options={{ drawerItemStyle: { display: 'none' } }} />
       </Drawer>
     </GestureHandlerRootView>
   );

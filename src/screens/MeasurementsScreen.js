@@ -21,10 +21,9 @@ const MALE_FIELDS = [
   { key: 'sleeve',         label: 'Sleeve' },
   { key: 'shoulder',       label: 'Shoulder' },
   { key: 'collar',         label: 'Collar / Baan' },
-  { key: 'daman',          label: 'Daman' },
   { key: 'shalwar_length', label: 'Shalwar Length' },
   { key: 'mohri',          label: 'Mohri (Bottom)' },
-  
+  { key: 'daman',          label: 'Daman' },
 ];
 const FEMALE_FIELDS = [
   { key: 'kameez_length',  label: 'Kameez Length' },
@@ -142,7 +141,7 @@ export default function MeasurementsScreen() {
             {customers.length === 0 ? (
               <View style={s.noCustomerBox}>
                 <Text style={s.noCustomerText}>No customers yet. Add a customer first.</Text>
-                <TouchableOpacity style={s.addCustBtn} onPress={() => router.push('/(drawer)/add-customer')}>
+                <TouchableOpacity style={s.addCustBtn} onPress={() => router.push('/add-customer')}>
                   <Text style={s.addCustBtnText}>+ Add Customer</Text>
                 </TouchableOpacity>
               </View>

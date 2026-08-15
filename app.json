@@ -2,6 +2,7 @@
   "expo": {
     "name": "Tailors",
     "slug": "Tailors",
+    "scheme": "tailors",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

@@ -41,7 +41,7 @@ export default function PaymentsScreen() {
     const pct = item.price > 0 ? Math.round((item.advance / item.price) * 100) : 0;
     const barColor = pct === 100 ? C.mid : pct > 50 ? C.gold : C.orange;
     return (
-      <TouchableOpacity style={s.payCard} onPress={() => router.push({ pathname: '/(drawer)/orders/[id]', params: { id: item.id } })} activeOpacity={0.82}>
+      <TouchableOpacity style={s.payCard} onPress={() => router.push({ pathname: '/order-detail/[id]', params: { id: item.id } })} activeOpacity={0.82}>
         <View style={s.payTop}>
           <View>
             <Text style={s.payName}>{getName(item.customerId)}</Text>

@@ -99,7 +99,7 @@ export default function CustomersScreen() {
           <Text style={s.headerSub}>Tailors</Text>
           <Text style={s.headerTitle}>Customers</Text>
         </View>
-        <TouchableOpacity style={s.addBtn} onPress={() => router.push('/(drawer)/add-customer')}>
+        <TouchableOpacity style={s.addBtn} onPress={() => router.push('/add-customer')}>
           <Text style={s.addBtnText}>+ Add</Text>
         </TouchableOpacity>
       </View>

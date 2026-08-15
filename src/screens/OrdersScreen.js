@@ -39,7 +39,7 @@ export default function OrdersScreen() {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={[s.card, { borderLeftColor: BORDER[item.status] || '#ccc' }]}
-      onPress={() => router.push({ pathname: '/(drawer)/orders/[id]', params: { id: item.id } })}
+      onPress={() => router.push({ pathname: '/order-detail/[id]', params: { id: item.id } })}
       activeOpacity={0.82}
     >
       <View style={s.cardTop}>
@@ -68,7 +68,7 @@ export default function OrdersScreen() {
           <Text style={s.headerSub}>Rizwan Tailors</Text>
           <Text style={s.headerTitle}>Orders</Text>
         </View>
-        <TouchableOpacity style={s.addBtn} onPress={() => router.push('/(drawer)/add-order')}>
+        <TouchableOpacity style={s.addBtn} onPress={() => router.push('/add-order')}>
           <Text style={s.addBtnText}>+ Add</Text>
         </TouchableOpacity>
       </View>
