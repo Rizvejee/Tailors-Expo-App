@@ -23,3 +23,7 @@ export const KEYS = {
   MEASUREMENTS: 'rt_measurements',
   TRASH:        'rt_trash',
 };
+
+// User-specific keys — data logout پر محفوظ رہے
+// یہ function uid کے ساتھ key بناتا ہے
+export const userKey = (key, uid) => `${key}_${uid}`;

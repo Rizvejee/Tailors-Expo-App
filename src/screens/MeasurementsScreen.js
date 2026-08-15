@@ -112,7 +112,7 @@ export default function MeasurementsScreen() {
   const isReadOnly        = hasSaved && !isEditing;
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={s.safe} edges={['top']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}

@@ -107,15 +107,7 @@ export default function SettingsScreen() {
               router.replace('/login');
             } catch (e) {
               setLoading(false);
-              if (e.code === 'auth/requires-recent-login') {
-                showAlert(
-                  'Login Required',
-                  'Please logout and login again before deleting your account.',
-                  [{ text: 'OK', style: 'confirm' }]
-                );
-              } else {
-                showAlert('Error', 'Could not delete account. Please try again.', [{ text: 'OK', style: 'confirm' }]);
-              }
+              showAlert('Error', 'Could not delete account. Please try again.', [{ text: 'OK', style: 'confirm' }]);
             }
           },
         },
@@ -126,7 +118,7 @@ export default function SettingsScreen() {
   if (!user) return null;
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={s.safe} edges={['top']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}

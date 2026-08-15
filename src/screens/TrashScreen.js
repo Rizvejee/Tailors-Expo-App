@@ -40,14 +40,27 @@ export default function TrashScreen() {
         onPress: async () => {
           const trash    = (await Storage.get(KEYS.TRASH)) || [];
           const newTrash = trash.filter(t => t.id !== item.id);
-          // ✅ Trash update — AsyncStorage + Firebase
           await syncHelper.saveTrash(newTrash);
+
           if (item.type === 'customer') {
+            // customer واپس لائیں
             const customers = (await Storage.get(KEYS.CUSTOMERS)) || [];
-            const { type, deletedAt, ...original } = item;
+            const { type, deletedAt, _orders, _measurements, ...original } = item;
             customers.push(original);
-            // ✅ Customers update — AsyncStorage + Firebase
             await syncHelper.saveCustomers(customers);
+
+            // orders واپس لائیں (اگر trash میں محفوظ تھے)
+            if (_orders && _orders.length > 0) {
+              const allOrders = (await Storage.get(KEYS.ORDERS)) || [];
+              await syncHelper.saveOrders([...allOrders, ..._orders]);
+            }
+
+            // measurements واپس لائیں
+            if (_measurements) {
+              const allM = (await Storage.get(KEYS.MEASUREMENTS)) || {};
+              allM[item.id] = _measurements;
+              await syncHelper.saveMeasurements(allM);
+            }
           }
           loadTrash();
         },
@@ -56,7 +69,7 @@ export default function TrashScreen() {
   };
 
   const permanentDelete = (item) => {
-    showAlert('Delete Forever', `"${item.name}" will be permanently deleted.`, [
+    showAlert('Delete Forever', `"${item.name}" will be permanently deleted forever.`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete Forever', style: 'destructive',
@@ -64,6 +77,20 @@ export default function TrashScreen() {
           const trash    = (await Storage.get(KEYS.TRASH)) || [];
           const newTrash = trash.filter(t => t.id !== item.id);
           await syncHelper.saveTrash(newTrash);
+
+          // customer کا باقی data بھی مٹائیں (اگر trash میں نہیں تھا)
+          if (item.type === 'customer') {
+            const allOrders = (await Storage.get(KEYS.ORDERS)) || [];
+            const filtered  = allOrders.filter(o => o.customerId !== item.id);
+            if (filtered.length !== allOrders.length) {
+              await syncHelper.saveOrders(filtered);
+            }
+            const allM = (await Storage.get(KEYS.MEASUREMENTS)) || {};
+            if (allM[item.id]) {
+              delete allM[item.id];
+              await syncHelper.saveMeasurements(allM);
+            }
+          }
           loadTrash();
         },
       },

@@ -89,7 +89,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={s.safe} edges={['top']}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}>
         <View style={s.hero}>
           <View style={s.logoCircle}><Text style={{ fontSize: 38 }}>🧵</Text></View>
@@ -158,8 +158,8 @@ function PassField({ label, value, onChange, show, toggle }) {
 }
 
 const s = StyleSheet.create({
-  safe:          { flex: 1, backgroundColor: C.green },
-  hero:          { alignItems: 'center', paddingTop: 32, paddingBottom: 24 },
+  safe:          { flex: 1, backgroundColor: C.bg },
+  hero:          { alignItems: 'center', paddingTop: 32, paddingBottom: 24, backgroundColor: C.green },
   logoCircle:    { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.14)', alignItems: 'center', justifyContent: 'center', marginBottom: 14, borderWidth: 2, borderColor: 'rgba(255,255,255,0.18)' },
   heroTitle:     { fontSize: 30, fontWeight: '800', color: '#fff', marginBottom: 4 },
   heroSub:       { fontSize: 13, color: C.light, fontWeight: '500' },
