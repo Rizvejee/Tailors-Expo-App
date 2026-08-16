@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Storage, KEYS } from '../utils/storage';
+import useShopName from '../utils/useShopName';
 import { syncHelper } from '../utils/syncHelper';
 import CustomAlert from '../components/CustomAlert';
 
@@ -16,6 +17,7 @@ const C = {
 };
 
 export default function AddCustomerScreen() {
+  const shopName = useShopName();
   const [name,        setName]        = useState('');
   const [phone,       setPhone]       = useState('');
   const [address,     setAddress]     = useState('');
@@ -51,7 +53,7 @@ export default function AddCustomerScreen() {
             <Text style={{ color: '#fff', fontSize: 20 }}>←</Text>
           </TouchableOpacity>
           <View>
-            <Text style={s.headerSub}>Tailors</Text>
+            <Text style={s.headerSub}>{shopName}</Text>
             <Text style={s.headerTitle}>Add Customer</Text>
           </View>
         </View>

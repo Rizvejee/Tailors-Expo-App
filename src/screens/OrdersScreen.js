@@ -7,6 +7,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Storage, KEYS } from '../utils/storage';
+import useShopName from '../utils/useShopName';
 
 const C = {
   green: '#1B4332', mid: '#2D6A4F', light: '#A7C4B5', gold: '#D4A853',
@@ -19,6 +20,7 @@ const BADGE_TEXT = { Pending: '#E07B39', Ready: '#2D6A4F', Delivered: '#6B7280' 
 const FILTERS = ['All', 'Pending', 'Ready', 'Delivered'];
 
 export default function OrdersScreen() {
+  const shopName = useShopName();
   const navigation = useNavigation();
   const [orders,    setOrders]    = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -65,7 +67,7 @@ export default function OrdersScreen() {
           <Text style={{ color: '#fff', fontSize: 22 }}>☰</Text>
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <Text style={s.headerSub}>Rizwan Tailors</Text>
+          <Text style={s.headerSub}>{shopName}</Text>
           <Text style={s.headerTitle}>Orders</Text>
         </View>
         <TouchableOpacity style={s.addBtn} onPress={() => router.push('/add-order')}>

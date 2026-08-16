@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { Storage, KEYS } from '../utils/storage';
+import useShopName from '../utils/useShopName';
 import CustomAlert from '../components/CustomAlert';
 
 const C = {
@@ -16,6 +17,7 @@ const C = {
 };
 
 export default function SettingsScreen() {
+  const shopName = useShopName();
   const navigation = useNavigation();
   const [user,        setUser]        = useState(null);
   const [name,        setName]        = useState('');
@@ -44,7 +46,18 @@ export default function SettingsScreen() {
     setLoading(true);
     try {
       const updatedUser = { ...user, name: name.trim() };
+
+      // LOGGED_IN update کریں
       await Storage.set(KEYS.LOGGED_IN, updatedUser);
+
+      // USERS list میں بھی name update کریں
+      const users = (await Storage.get(KEYS.USERS)) || [];
+      const idx = users.findIndex(u => u.uid === user.uid);
+      if (idx !== -1) {
+        users[idx].name = name.trim();
+        await Storage.set(KEYS.USERS, users);
+      }
+
       setUser(updatedUser);
       setLoading(false);
       showAlert('Profile Updated', 'Your name has been updated successfully.', [{ text: 'OK', style: 'confirm' }]);
@@ -129,7 +142,7 @@ export default function SettingsScreen() {
             <Text style={{ color: '#fff', fontSize: 22 }}>☰</Text>
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
-            <Text style={s.headerSub}>Tailors</Text>
+            <Text style={s.headerSub}>{shopName}</Text>
             <Text style={s.headerTitle}>Settings</Text>
           </View>
         </View>

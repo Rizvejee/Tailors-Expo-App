@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Storage, KEYS } from '../utils/storage';
+import useShopName from '../utils/useShopName';
 import { router, useLocalSearchParams } from 'expo-router';
 import { syncHelper } from '../utils/syncHelper';
 import CustomAlert from '../components/CustomAlert';
@@ -19,6 +20,7 @@ const STATUS_COLORS = { Pending: C.orange, Ready: C.mid, Delivered: C.grey };
 const BADGE_BG      = { Pending: '#FFF3E0', Ready: '#ECFDF5', Delivered: '#F3F4F6' };
 
 export default function OrderDetailScreen() {
+  const shopName = useShopName();
   const { id: orderId } = useLocalSearchParams();
   const [order,       setOrder]       = useState(null);
   const [customer,    setCustomer]    = useState(null);
@@ -113,7 +115,7 @@ export default function OrderDetailScreen() {
             <Text style={{ color: '#fff', fontSize: 20 }}>←</Text>
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
-            <Text style={s.headerSub}>Tailors</Text>
+            <Text style={s.headerSub}>{shopName}</Text>
             <Text style={s.headerTitle}>Order Detail</Text>
           </View>
           <TouchableOpacity style={s.deleteBtn} onPress={deleteOrder}>

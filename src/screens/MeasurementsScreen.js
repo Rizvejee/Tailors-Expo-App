@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { Storage, KEYS } from '../utils/storage';
+import useShopName from '../utils/useShopName';
 import { syncHelper } from '../utils/syncHelper';
 import CustomAlert from '../components/CustomAlert';
 
@@ -39,6 +40,7 @@ const STATUS_COLORS = { Pending: '#E07B39', Ready: '#2D6A4F', Delivered: '#6B728
 const STATUS_BG     = { Pending: '#FFF3E0', Ready: '#ECFDF5', Delivered: '#F3F4F6' };
 
 export default function MeasurementsScreen() {
+  const shopName = useShopName();
   const navigation = useNavigation();
   const { customerId: routeCustomerId } = useLocalSearchParams();
   const [customers,      setCustomers]      = useState([]);
@@ -123,7 +125,7 @@ export default function MeasurementsScreen() {
             <Text style={{ color: '#fff', fontSize: 22 }}>☰</Text>
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
-            <Text style={s.headerSub}>Tailors</Text>
+            <Text style={s.headerSub}>{shopName}</Text>
             <Text style={s.headerTitle}>
               {selectedCustomer ? selectedCustomer.name : 'Measurements'}
             </Text>

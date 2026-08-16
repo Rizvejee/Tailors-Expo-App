@@ -7,6 +7,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Storage, KEYS } from '../utils/storage';
+import useShopName from '../utils/useShopName';
 import { syncHelper } from '../utils/syncHelper';
 import CustomAlert from '../components/CustomAlert';
 
@@ -17,6 +18,7 @@ const C = {
 };
 
 export default function CustomersScreen() {
+  const shopName = useShopName();
   const navigation = useNavigation();
   const [customers,   setCustomers]   = useState([]);
   const [orders,      setOrders]      = useState([]);

@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Storage, KEYS } from '../utils/storage';
+import useShopName from '../utils/useShopName';
 import { syncHelper } from '../utils/syncHelper';
 import CustomAlert from '../components/CustomAlert';
 
@@ -17,6 +18,7 @@ const C = {
 const CLOTH_TYPES = ['Shalwar Kameez','Pant Shirt','Sherwani','Waistcoat','Kurta','Suit','Other'];
 
 export default function AddOrderScreen() {
+  const shopName = useShopName();
   const [customers,    setCustomers]    = useState([]);
   const [customerId,   setCustomerId]   = useState('');
   const [clothType,    setClothType]    = useState('');
@@ -65,7 +67,7 @@ export default function AddOrderScreen() {
             <Text style={{ color: '#fff', fontSize: 20 }}>←</Text>
           </TouchableOpacity>
           <View>
-            <Text style={s.headerSub}>Tailors</Text>
+            <Text style={s.headerSub}>{shopName}</Text>
             <Text style={s.headerTitle}>Add Order</Text>
           </View>
         </View>

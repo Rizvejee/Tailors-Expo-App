@@ -5,6 +5,7 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Storage, KEYS } from '../utils/storage';
+import useShopName from '../utils/useShopName';
 import { syncHelper } from '../utils/syncHelper';
 import CustomAlert from '../components/CustomAlert';
 
@@ -16,6 +17,7 @@ const C = {
 const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
 
 export default function TrashScreen() {
+  const shopName = useShopName();
   const navigation = useNavigation();
   const [trashItems,  setTrashItems]  = useState([]);
   const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', buttons: [] });
@@ -143,7 +145,7 @@ export default function TrashScreen() {
           <Text style={{ color: '#fff', fontSize: 22 }}>☰</Text>
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <Text style={s.headerSub}>Tailors</Text>
+          <Text style={s.headerSub}>{shopName}</Text>
           <Text style={s.headerTitle}>Trash</Text>
         </View>
         {trashItems.length > 0 && (

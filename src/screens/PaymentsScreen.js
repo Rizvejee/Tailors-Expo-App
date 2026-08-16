@@ -5,6 +5,7 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Storage, KEYS } from '../utils/storage';
+import useShopName from '../utils/useShopName';
 
 const C = {
   green: '#1B4332', mid: '#2D6A4F', light: '#A7C4B5', gold: '#D4A853',
@@ -13,6 +14,7 @@ const C = {
 };
 
 export default function PaymentsScreen() {
+  const shopName = useShopName();
   const navigation = useNavigation();
   const [orders,    setOrders]    = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -69,7 +71,7 @@ export default function PaymentsScreen() {
           <Text style={{ color: '#fff', fontSize: 22 }}>☰</Text>
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <Text style={s.headerSub}>Rizwan Tailors</Text>
+          <Text style={s.headerSub}>{shopName}</Text>
           <Text style={s.headerTitle}>Payments</Text>
         </View>
       </View>
