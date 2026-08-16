@@ -51,14 +51,14 @@ export default function CustomDrawer(props) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#1B4332' }}>
       <View style={s.drawerHeader}>
         <Text style={s.logoEmoji}>🧵</Text>
         <Text style={s.drawerTitle}>{shopName}</Text>
         <Text style={s.drawerUser}>👤 {userName}</Text>
       </View>
 
-      <DrawerContentScrollView {...props} style={{ flex: 1 }}>
+      <DrawerContentScrollView {...props} style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <View style={s.navSection}>
           {ITEMS.map(item => (
             <TouchableOpacity
@@ -84,12 +84,12 @@ export default function CustomDrawer(props) {
 
       <CustomAlert visible={alertConfig.visible} title={alertConfig.title}
         message={alertConfig.message} buttons={alertConfig.buttons} onClose={hideAlert} />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const s = StyleSheet.create({
-  drawerHeader:   { backgroundColor: C.green, padding: 24, paddingTop: 40 },
+  drawerHeader:   { backgroundColor: C.green, padding: 24, paddingTop: 52 },
   logoEmoji:      { fontSize: 36, marginBottom: 10 },
   drawerTitle:    { fontSize: 18, fontWeight: '800', color: '#fff', marginBottom: 4 },
   drawerUser:     { fontSize: 13, color: C.light, fontWeight: '500' },
@@ -99,7 +99,7 @@ const s = StyleSheet.create({
   navIcon:        { fontSize: 20, width: 28, textAlign: 'center' },
   navLabel:       { fontSize: 15, fontWeight: '600', color: C.textMid },
   navLabelActive: { color: C.green },
-  footer:         { padding: 16, paddingBottom: 28 },
+  footer:         { padding: 16, paddingBottom: 28, backgroundColor: '#FFFFFF' },
   logoutBtn:      { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 13, borderRadius: 14, backgroundColor: '#FEE2E2' },
   logoutText:     { fontSize: 15, fontWeight: '700', color: C.danger },
 });
