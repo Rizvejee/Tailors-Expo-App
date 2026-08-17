@@ -90,13 +90,23 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={s.safe}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}>
+      <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          bounces={false}>
         <View style={s.hero}>
           <View style={s.logoCircle}><Text style={{ fontSize: 38 }}>🧵</Text></View>
           <Text style={s.heroTitle}>Tailors</Text>
           <Text style={s.heroSub}>Tailor Shop Management</Text>
         </View>
-        <ScrollView style={s.card} contentContainerStyle={{ paddingBottom: 48 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <View style={s.card}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: 120 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true}>
           <View style={s.tabs}>
             <TouchableOpacity style={[s.tab, tab === 'login'  && s.tabActive]} onPress={() => setTab('login')}>
               <Text style={[s.tabText, tab === 'login'  && s.tabTextActive]}>Login</Text>
@@ -131,7 +141,8 @@ export default function LoginScreen() {
             </View>
           )}
         </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
+      </ScrollView>
       <CustomAlert visible={alertConfig.visible} title={alertConfig.title} message={alertConfig.message} buttons={alertConfig.buttons} onClose={hideAlert} />
     </SafeAreaView>
   );
