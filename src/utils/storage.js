@@ -22,6 +22,7 @@ export const KEYS = {
   ORDERS:       'rt_orders',
   MEASUREMENTS: 'rt_measurements',
   TRASH:        'rt_trash',
+  EXPENSES:     'rt_expenses',
 };
 
 // User-specific keys — data logout پر محفوظ رہے

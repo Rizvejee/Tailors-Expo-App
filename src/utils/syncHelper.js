@@ -6,4 +6,5 @@ export const syncHelper = {
   saveOrders:       async (data) => Storage.set(KEYS.ORDERS,       data),
   saveMeasurements: async (data) => Storage.set(KEYS.MEASUREMENTS, data),
   saveTrash:        async (data) => Storage.set(KEYS.TRASH,        data),
+  saveExpenses:     async (data) => Storage.set(KEYS.EXPENSES,     data),
 };

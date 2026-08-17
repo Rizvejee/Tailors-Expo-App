@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
-  StyleSheet, KeyboardAvoidingView, Platform,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Storage, KEYS } from '../utils/storage';
@@ -61,7 +61,6 @@ export default function AddOrderScreen() {
 
   return (
     <SafeAreaView style={s.safe}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }} keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}>
         <View style={s.header}>
           <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
             <Text style={{ color: '#fff', fontSize: 20 }}>←</Text>
@@ -142,7 +141,6 @@ export default function AddOrderScreen() {
             <Text style={s.saveBtnText}>Save Order</Text>
           </TouchableOpacity>
         </ScrollView>
-      </KeyboardAvoidingView>
 
       <CustomAlert visible={alertConfig.visible} title={alertConfig.title}
         message={alertConfig.message} buttons={alertConfig.buttons} onClose={hideAlert} />

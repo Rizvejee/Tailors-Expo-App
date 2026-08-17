@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  StyleSheet, ScrollView, KeyboardAvoidingView,
-  Platform, ActivityIndicator,
+  StyleSheet, ScrollView, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -90,23 +89,16 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={s.safe}>
-      <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          bounces={false}>
         <View style={s.hero}>
           <View style={s.logoCircle}><Text style={{ fontSize: 38 }}>🧵</Text></View>
           <Text style={s.heroTitle}>Tailors</Text>
           <Text style={s.heroSub}>Tailor Shop Management</Text>
         </View>
-        <View style={s.card}>
         <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingBottom: 120 }}
+          style={s.card}
+          contentContainerStyle={{ paddingBottom: 48 }}
           keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          nestedScrollEnabled={true}>
+          showsVerticalScrollIndicator={false}>
           <View style={s.tabs}>
             <TouchableOpacity style={[s.tab, tab === 'login'  && s.tabActive]} onPress={() => setTab('login')}>
               <Text style={[s.tabText, tab === 'login'  && s.tabTextActive]}>Login</Text>
@@ -141,8 +133,6 @@ export default function LoginScreen() {
             </View>
           )}
         </ScrollView>
-        </View>
-      </ScrollView>
       <CustomAlert visible={alertConfig.visible} title={alertConfig.title} message={alertConfig.message} buttons={alertConfig.buttons} onClose={hideAlert} />
     </SafeAreaView>
   );

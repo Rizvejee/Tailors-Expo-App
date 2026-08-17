@@ -14,6 +14,7 @@ export default function DrawerLayout() {
         <Drawer.Screen name="measurements" options={{ drawerLabel: 'Measurements' }} />
         <Drawer.Screen name="orders"       options={{ drawerLabel: 'Orders' }} />
         <Drawer.Screen name="payments"     options={{ drawerLabel: 'Payments' }} />
+        <Drawer.Screen name="expenses"     options={{ drawerLabel: 'Expenses' }} />
         <Drawer.Screen name="trash"        options={{ drawerLabel: 'Trash' }} />
         <Drawer.Screen name="settings"     options={{ drawerLabel: 'Settings' }} />
       </Drawer>

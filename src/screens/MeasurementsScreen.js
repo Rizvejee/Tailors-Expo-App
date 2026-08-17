@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
-  StyleSheet, KeyboardAvoidingView, Platform,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
@@ -115,11 +115,6 @@ export default function MeasurementsScreen() {
 
   return (
     <SafeAreaView style={s.safe}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
-      >
         <View style={s.header}>
           <TouchableOpacity style={s.menuBtn} onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
             <Text style={{ color: '#fff', fontSize: 22 }}>☰</Text>
@@ -261,7 +256,6 @@ export default function MeasurementsScreen() {
             )}
           </ScrollView>
         </View>
-      </KeyboardAvoidingView>
 
       <CustomAlert
         visible={alertConfig.visible}

@@ -14,6 +14,7 @@ const ITEMS = [
   { label: 'Measurements', icon: '📏', route: '/(drawer)/measurements' },
   { label: 'Orders',       icon: '📦', route: '/(drawer)/orders'       },
   { label: 'Payments',     icon: '💰', route: '/(drawer)/payments'     },
+  { label: 'Expenses',     icon: '💸', route: '/(drawer)/expenses'     },
   { label: 'Trash',        icon: '🗑',  route: '/(drawer)/trash'        },
   { label: 'Settings',     icon: '⚙️', route: '/(drawer)/settings'    },
 ];
