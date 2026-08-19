@@ -156,44 +156,6 @@ export default function MeasurementsScreen() {
               </ScrollView>
             )}
 
-            {/* ── Orders & Instructions card ── */}
-            {customerOrders.length > 0 && (
-              <View style={s.ordersCard}>
-                <Text style={s.ordersCardTitle}>📦 Orders & Instructions</Text>
-                {customerOrders.map((order, i) => (
-                  <View
-                    key={order.id}
-                    style={[s.orderItem, i === customerOrders.length - 1 && { borderBottomWidth: 0 }]}
-                  >
-                    {/* Top row — cloth type + status */}
-                    <View style={s.orderItemTop}>
-                      <Text style={s.orderClothType}>📌 {order.clothType}</Text>
-                      <View style={[s.statusBadge, { backgroundColor: STATUS_BG[order.status] }]}>
-                        <Text style={[s.statusBadgeText, { color: STATUS_COLORS[order.status] }]}>
-                          {order.status}
-                        </Text>
-                      </View>
-                    </View>
-
-                    {/* Delivery date */}
-                    {order.deliveryDate ? (
-                      <Text style={s.orderMeta}>📅 Delivery: {order.deliveryDate}</Text>
-                    ) : null}
-
-                    {/* Special instructions */}
-                    {order.instructions ? (
-                      <View style={s.instructionsBox}>
-                        <Text style={s.instructionsLabel}>Special Instructions:</Text>
-                        <Text style={s.instructionsText}>{order.instructions}</Text>
-                      </View>
-                    ) : (
-                      <Text style={s.noInstructions}>No special instructions</Text>
-                    )}
-                  </View>
-                ))}
-              </View>
-            )}
-
             {/* ── Gender tabs ── */}
             <View style={s.tabs}>
               <TouchableOpacity
@@ -254,6 +216,22 @@ export default function MeasurementsScreen() {
                 </Text>
               </TouchableOpacity>
             )}
+
+            {/* ── Latest Special Instructions — ایک کارڈ ── */}
+            {(() => {
+              // سب orders میں سے latest instructions والا نکالیں
+              const withInstructions = customerOrders
+                .filter(o => o.instructions && o.instructions.trim())
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+              const latest = withInstructions[0];
+              if (!latest) return null;
+              return (
+                <View style={s.ordersCard}>
+                  <Text style={s.ordersCardTitle}>📝 Special Instructions</Text>
+                  <Text style={s.instructionsText}>{latest.instructions}</Text>
+                </View>
+              );
+            })()}
           </ScrollView>
         </View>
 

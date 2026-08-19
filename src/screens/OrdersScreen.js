@@ -17,7 +17,7 @@ const C = {
 const BORDER = { Pending: '#E07B39', Ready: '#2D6A4F', Delivered: '#6B7280' };
 const BADGE_BG = { Pending: '#FFF3E0', Ready: '#ECFDF5', Delivered: '#F3F4F6' };
 const BADGE_TEXT = { Pending: '#E07B39', Ready: '#2D6A4F', Delivered: '#6B7280' };
-const FILTERS = ['All', 'Pending', 'Ready', 'Delivered'];
+const FILTERS = ['All', 'Pending', 'Ready'];
 
 export default function OrdersScreen() {
   const shopName = useShopName();
@@ -35,7 +35,8 @@ export default function OrdersScreen() {
 
   const getName = (id) => (customers.find(c => c.id === id) || {}).name || 'Unknown';
 
-  const filtered = (filter === 'All' ? orders : orders.filter(o => o.status === filter))
+  const filtered = orders.filter(o => o.status !== 'Delivered')
+    .filter(o => filter === 'All' ? true : o.status === filter)
     .slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   const renderItem = ({ item }) => (

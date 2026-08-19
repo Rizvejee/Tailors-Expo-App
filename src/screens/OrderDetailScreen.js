@@ -27,13 +27,12 @@ export default function OrderDetailScreen() {
   const [payment,     setPayment]     = useState('');
   const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', buttons: [] });
 
-  const showAlert = (title, message, buttons) => setAlertConfig({ visible: true, title, message, buttons });
-  const hideAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
+  const showAlert = (t, m, b) => setAlertConfig({ visible: true, title: t, message: m, buttons: b });
+  const hideAlert = () => setAlertConfig(p => ({ ...p, visible: false }));
 
   useEffect(() => { loadOrder(); }, []);
 
   const loadOrder = async () => {
-    // orderId from useLocalSearchParams above
     const [orders, customers] = await Promise.all([Storage.get(KEYS.ORDERS), Storage.get(KEYS.CUSTOMERS)]);
     const o = (orders    || []).find(x => x.id === orderId);
     const c = o ? (customers || []).find(x => x.id === o.customerId) : null;
@@ -45,7 +44,6 @@ export default function OrderDetailScreen() {
     const orders = (await Storage.get(KEYS.ORDERS)) || [];
     const idx    = orders.findIndex(o => o.id === order.id);
     orders[idx].status = newStatus;
-    // ✅ AsyncStorage + Firebase دونوں میں save
     await syncHelper.saveOrders(orders);
     setOrder(prev => ({ ...prev, status: newStatus }));
     showAlert('Updated', `Order is now "${newStatus}".`, [{ text: 'OK', style: 'confirm' }]);
@@ -63,7 +61,6 @@ export default function OrderDetailScreen() {
     const idx    = orders.findIndex(o => o.id === order.id);
     orders[idx].advance   = (orders[idx].advance || 0) + amount;
     orders[idx].remaining = Math.max(0, orders[idx].remaining - amount);
-    // ✅ AsyncStorage + Firebase دونوں میں save
     await syncHelper.saveOrders(orders);
     setOrder(prev => ({ ...prev, advance: orders[idx].advance, remaining: orders[idx].remaining }));
     setPayment('');
@@ -73,15 +70,11 @@ export default function OrderDetailScreen() {
   const deleteOrder = () => {
     showAlert('Delete Order', 'This cannot be undone.', [
       { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete', style: 'destructive',
-        onPress: async () => {
-          const orders = ((await Storage.get(KEYS.ORDERS)) || []).filter(o => o.id !== order.id);
-          // ✅ AsyncStorage + Firebase دونوں میں save
-          await syncHelper.saveOrders(orders);
-          router.back();
-        },
-      },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+        const orders = ((await Storage.get(KEYS.ORDERS)) || []).filter(o => o.id !== order.id);
+        await syncHelper.saveOrders(orders);
+        router.back();
+      }},
     ]);
   };
 
@@ -104,91 +97,91 @@ export default function OrderDetailScreen() {
     </SafeAreaView>
   );
 
-  const pct      = order.price > 0 ? Math.round((order.advance / order.price) * 100) : 0;
+  const pct      = order.price > 0 ? Math.round(((order.advance || 0) / order.price) * 100) : 0;
   const barColor = pct === 100 ? C.mid : pct > 50 ? C.gold : C.orange;
 
   return (
     <SafeAreaView style={s.safe}>
-        <View style={s.header}>
-          <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
-            <Text style={{ color: '#fff', fontSize: 20 }}>←</Text>
-          </TouchableOpacity>
-          <View style={{ flex: 1 }}>
-            <Text style={s.headerSub}>{shopName}</Text>
-            <Text style={s.headerTitle}>Order Detail</Text>
+      <View style={s.header}>
+        <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
+          <Text style={{ color: '#fff', fontSize: 20 }}>←</Text>
+        </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+          <Text style={s.headerSub}>{shopName}</Text>
+          <Text style={s.headerTitle}>Order Detail</Text>
+        </View>
+        <TouchableOpacity style={s.deleteBtn} onPress={deleteOrder}>
+          <Text style={{ fontSize: 18 }}>🗑</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView style={s.body} contentContainerStyle={{ paddingBottom: 48 }}
+        keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+
+        <View style={s.statusHero}>
+          <View>
+            <Text style={s.statusLabel}>Current Status</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <View style={[s.statusDot, { backgroundColor: STATUS_COLORS[order.status] }]} />
+              <Text style={[s.statusValue, { color: STATUS_COLORS[order.status] }]}>{order.status}</Text>
+            </View>
           </View>
-          <TouchableOpacity style={s.deleteBtn} onPress={deleteOrder}>
-            <Text style={{ fontSize: 18 }}>🗑</Text>
-          </TouchableOpacity>
+          <Text style={s.deliveryText}>📅 {order.deliveryDate || '—'}</Text>
         </View>
 
-        <ScrollView style={s.body} contentContainerStyle={{ paddingBottom: 48 }}
-          keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <Text style={s.smallLabel}>UPDATE STATUS</Text>
+        <View style={s.statusRow}>
+          {STATUS_LIST.map(st => (
+            <TouchableOpacity key={st}
+              style={[s.statusBtn, order.status === st && { backgroundColor: BADGE_BG[st], borderColor: STATUS_COLORS[st] }]}
+              onPress={() => changeStatus(st)}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: order.status === st ? STATUS_COLORS[st] : C.textMid }}>
+                {st === 'Pending' ? '🟠' : st === 'Ready' ? '🟢' : '⚫'} {st}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-          <View style={s.statusHero}>
-            <View>
-              <Text style={s.statusLabel}>Current Status</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <View style={[s.statusDot, { backgroundColor: STATUS_COLORS[order.status] }]} />
-                <Text style={[s.statusValue, { color: STATUS_COLORS[order.status] }]}>{order.status}</Text>
+        <View style={s.card}>
+          <Text style={s.cardTitle}>ORDER INFO</Text>
+          <DetailRow k="Customer"     v={customer?.name || '—'} />
+          <DetailRow k="Cloth Type"   v={order.clothType} />
+          <DetailRow k="Cloth Owner"  v={order.clothOwner || '—'} />
+          <DetailRow k="Instructions" v={order.instructions || '—'} />
+          <DetailRow k="Delivery"     v={order.deliveryDate || '—'} />
+          <DetailRow k="Order Date"   v={new Date(order.createdAt).toLocaleDateString('en-PK')} last />
+        </View>
+
+        <View style={s.card}>
+          <Text style={s.cardTitle}>PAYMENT</Text>
+          <DetailRow k="Total Price"  v={`Rs. ${Number(order.price || 0).toLocaleString()}`} />
+          <DetailRow k="Advance Paid" v={`Rs. ${Number(order.advance || 0).toLocaleString()}`} />
+          <DetailRow k="Remaining"    v={`Rs. ${Number(order.remaining || 0).toLocaleString()}`} />
+          <View style={s.progressBg}>
+            <View style={[s.progressFill, { width: `${pct}%`, backgroundColor: barColor }]} />
+          </View>
+          <Text style={s.progressLabel}>{pct}% paid</Text>
+          {order.remaining > 0 ? (
+            <View style={{ marginTop: 16 }}>
+              <Text style={s.smallLabel}>ADD PAYMENT</Text>
+              <View style={s.payRow}>
+                <TextInput style={s.payInput} value={payment} onChangeText={setPayment}
+                  placeholder="Amount (Rs.)" placeholderTextColor={C.textLight} keyboardType="numeric" />
+                <TouchableOpacity style={s.payBtn} onPress={addPayment}>
+                  <Text style={{ color: '#fff', fontWeight: '700' }}>Add</Text>
+                </TouchableOpacity>
               </View>
             </View>
-            <Text style={s.deliveryText}>📅 {order.deliveryDate || '—'}</Text>
-          </View>
+          ) : (
+            <Text style={{ color: C.mid, fontWeight: '700', fontSize: 13, marginTop: 10 }}>✅ Fully paid</Text>
+          )}
+        </View>
 
-          <Text style={s.smallLabel}>UPDATE STATUS</Text>
-          <View style={s.statusRow}>
-            {STATUS_LIST.map(st => (
-              <TouchableOpacity key={st}
-                style={[s.statusBtn, order.status === st && { backgroundColor: BADGE_BG[st], borderColor: STATUS_COLORS[st] }]}
-                onPress={() => changeStatus(st)}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: order.status === st ? STATUS_COLORS[st] : C.textMid }}>
-                  {st === 'Pending' ? '🟠' : st === 'Ready' ? '🟢' : '⚫'} {st}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <View style={s.card}>
-            <Text style={s.cardTitle}>ORDER INFO</Text>
-            <DetailRow k="Customer"     v={customer?.name || '—'} />
-            <DetailRow k="Cloth Type"   v={order.clothType} />
-            <DetailRow k="Cloth Owner"  v={order.clothOwner || '—'} />
-            <DetailRow k="Instructions" v={order.instructions || '—'} />
-            <DetailRow k="Delivery"     v={order.deliveryDate || '—'} />
-            <DetailRow k="Order Date"   v={new Date(order.createdAt).toLocaleDateString('en-PK')} last />
-          </View>
-
-          <View style={s.card}>
-            <Text style={s.cardTitle}>PAYMENT</Text>
-            <DetailRow k="Total Price"  v={`Rs. ${Number(order.price || 0).toLocaleString()}`} />
-            <DetailRow k="Advance Paid" v={`Rs. ${Number(order.advance || 0).toLocaleString()}`} />
-            <DetailRow k="Remaining"    v={`Rs. ${Number(order.remaining || 0).toLocaleString()}`} />
-            <View style={s.progressBg}>
-              <View style={[s.progressFill, { width: `${pct}%`, backgroundColor: barColor }]} />
-            </View>
-            <Text style={s.progressLabel}>{pct}% paid</Text>
-            {order.remaining > 0 ? (
-              <View style={{ marginTop: 16 }}>
-                <Text style={s.smallLabel}>ADD PAYMENT</Text>
-                <View style={s.payRow}>
-                  <TextInput style={s.payInput} value={payment} onChangeText={setPayment}
-                    placeholder="Amount (Rs.)" placeholderTextColor={C.textLight} keyboardType="numeric" />
-                  <TouchableOpacity style={s.payBtn} onPress={addPayment}>
-                    <Text style={{ color: '#fff', fontWeight: '700' }}>Add</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ) : (
-              <Text style={{ color: C.mid, fontWeight: '700', fontSize: 13, marginTop: 10 }}>✅ Fully paid</Text>
-            )}
-          </View>
-
-          <TouchableOpacity style={s.waBtn} onPress={sendWhatsApp}>
-            <Text style={{ fontSize: 20 }}>💬</Text>
-            <Text style={s.waBtnText}>Send WhatsApp Message</Text>
-          </TouchableOpacity>
-        </ScrollView>
+        <TouchableOpacity style={s.waBtn} onPress={sendWhatsApp}>
+          <Text style={{ fontSize: 20 }}>💬</Text>
+          <Text style={s.waBtnText}>Send WhatsApp Message</Text>
+        </TouchableOpacity>
+      </ScrollView>
 
       <CustomAlert visible={alertConfig.visible} title={alertConfig.title}
         message={alertConfig.message} buttons={alertConfig.buttons} onClose={hideAlert} />

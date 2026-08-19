@@ -43,7 +43,7 @@ export default function PaymentsScreen() {
     const d = new Date(o.createdAt);
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   });
-  const monthIncome  = monthOrders.reduce((s, o) => s + (o.advance || 0), 0);
+  const monthIncome = monthOrders.reduce((s, o) => s + (o.advance || 0), 0);
   const monthExp     = expenses.filter(e => {
     const d = new Date(e.date);
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
@@ -51,8 +51,8 @@ export default function PaymentsScreen() {
   const monthProfit  = monthIncome - monthExp;
 
   // ── Year stats ──
-  const yearOrders  = orders.filter(o => new Date(o.createdAt).getFullYear() === now.getFullYear());
-  const yearIncome  = yearOrders.reduce((s, o) => s + (o.advance || 0), 0);
+  const yearOrders = orders.filter(o => new Date(o.createdAt).getFullYear() === now.getFullYear());
+  const yearIncome = yearOrders.reduce((s, o) => s + (o.advance || 0), 0);
   const yearExp     = expenses.filter(e => new Date(e.date).getFullYear() === now.getFullYear())
                               .reduce((s, e) => s + e.amount, 0);
   const yearProfit  = yearIncome - yearExp;
@@ -60,7 +60,10 @@ export default function PaymentsScreen() {
   // ── Remaining ──
   const totalRemaining = orders.reduce((s, o) => s + (o.remaining || 0), 0);
 
-  const sorted = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  // صرف وہ orders جن کی payment باقی ہو
+  const sorted = [...orders]
+    .filter(o => (o.remaining || 0) > 0)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   return (
     <SafeAreaView style={s.safe}>
