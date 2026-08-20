@@ -9,8 +9,6 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/icon.png",
-      "resizeMode": "contain",
       "backgroundColor": "#1B4332"
     },
     "ios": {
@@ -19,16 +17,25 @@
     "android": {
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#1B4332"
       },
+      "package": "com.rizwan.tailors",
       "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-router"
-    ]
+    "extra": {
+      "eas": {
+        "projectId": "311ca6d5-5abf-400d-bbfe-e3e14ffe4977"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/311ca6d5-5abf-400d-bbfe-e3e14ffe4977"
+    }
   }
 }
