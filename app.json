@@ -8,23 +8,18 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true
-    },
-    
-  "expo": {
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#1B4332",
-          "imageWidth": 150
+          "backgroundColor": "#1B4332"
         }
       ]
-    ]
-  },
-
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
     "android": {
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
@@ -38,15 +33,10 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
+      "router": {},
       "eas": {
-        "projectId": "311ca6d5-5abf-400d-bbfe-e3e14ffe4977"
+        "projectId": "dd5b93f8-edce-4be8-8c45-d777579b1188"
       }
-    },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/311ca6d5-5abf-400d-bbfe-e3e14ffe4977"
     }
   }
 }
