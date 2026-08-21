@@ -8,12 +8,23 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "splash": {
-      "backgroundColor": "#1B4332"
-    },
     "ios": {
       "supportsTablet": true
     },
+    
+  "expo": {
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#1B4332",
+          "imageWidth": 150
+        }
+      ]
+    ]
+  },
+
     "android": {
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {

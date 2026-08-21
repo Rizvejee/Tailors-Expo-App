@@ -1,56 +1,61 @@
 import React from 'react';
 import {
-  Modal, View, Text, TouchableOpacity, StyleSheet,
+  View, Text, TouchableOpacity, StyleSheet, TouchableWithoutFeedback,
 } from 'react-native';
 
+// Modal نہیں — screen کے اندر render ہوتا ہے
+// اس طرح navigation bar کا رنگ override نہیں ہوتا
 export default function CustomAlert({ visible, title, message, buttons, onClose }) {
   if (!visible) return null;
+
   return (
-    <Modal visible={visible} transparent animationType="fade">
-      <View style={s.overlay}>
-        <View style={s.box}>
-          <View style={s.iconWrap}>
-            <Text style={s.icon}>🧵</Text>
-          </View>
-          <Text style={s.title}>{title}</Text>
-          {!!message && <Text style={s.message}>{message}</Text>}
-          <View style={[s.btnRow, buttons.length === 1 && { justifyContent: 'center' }]}>
-            {buttons.map((btn, i) => (
-              <TouchableOpacity
-                key={i}
-                style={[
-                  s.btn,
-                  btn.style === 'cancel'      && s.btnCancel,
-                  btn.style === 'confirm'     && s.btnConfirm,
-                  btn.style === 'destructive' && s.btnDanger,
-                  buttons.length === 1        && { flex: 0, paddingHorizontal: 40 },
-                ]}
-                onPress={() => {
-                  onClose();
-                  if (btn.onPress) btn.onPress();
-                }}
-                activeOpacity={0.82}
-              >
-                <Text style={[
-                  s.btnText,
-                  btn.style === 'cancel'      && s.btnTextCancel,
-                  btn.style === 'confirm'     && s.btnTextConfirm,
-                  btn.style === 'destructive' && s.btnTextDanger,
-                ]}>
-                  {btn.text}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+    <View style={s.overlay}>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={s.backdrop} />
+      </TouchableWithoutFeedback>
+      <View style={s.box}>
+        <View style={s.iconWrap}>
+          <Text style={s.icon}>🧵</Text>
+        </View>
+        <Text style={s.title}>{title}</Text>
+        {!!message && <Text style={s.message}>{message}</Text>}
+        <View style={[s.btnRow, buttons.length === 1 && { justifyContent: 'center' }]}>
+          {buttons.map((btn, i) => (
+            <TouchableOpacity
+              key={i}
+              style={[
+                s.btn,
+                btn.style === 'cancel'      && s.btnCancel,
+                btn.style === 'confirm'     && s.btnConfirm,
+                btn.style === 'destructive' && s.btnDanger,
+                buttons.length === 1        && { flex: 0, paddingHorizontal: 40 },
+              ]}
+              onPress={() => {
+                onClose();
+                if (btn.onPress) btn.onPress();
+              }}
+              activeOpacity={0.82}
+            >
+              <Text style={[
+                s.btnText,
+                btn.style === 'cancel'      && s.btnTextCancel,
+                btn.style === 'confirm'     && s.btnTextConfirm,
+                btn.style === 'destructive' && s.btnTextDanger,
+              ]}>
+                {btn.text}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
-    </Modal>
+    </View>
   );
 }
 
 const s = StyleSheet.create({
-  overlay:        { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'center', alignItems: 'center', padding: 28 },
-  box:            { backgroundColor: '#FFFFFF', borderRadius: 28, padding: 28, width: '100%', alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 24, elevation: 12 },
+  overlay:        { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', zIndex: 9999 },
+  backdrop:       { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.55)' },
+  box:            { backgroundColor: '#FFFFFF', borderRadius: 28, padding: 28, width: '88%', alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 24, elevation: 12, zIndex: 10000 },
   iconWrap:       { width: 68, height: 68, borderRadius: 34, backgroundColor: '#F0FDF4', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
   icon:           { fontSize: 32 },
   title:          { fontSize: 18, fontWeight: '800', color: '#1A1A1A', marginBottom: 8, textAlign: 'center' },

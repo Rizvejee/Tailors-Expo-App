@@ -40,6 +40,11 @@ export default function ExpensesScreen() {
   const month = now.getMonth();
   const year  = now.getFullYear();
 
+  const thisMonthExpenses = expenses.filter(e => {
+    const d = new Date(e.date);
+    return d.getMonth() === month && d.getFullYear() === year;
+  });
+
 
   const addExpense = async () => {
     if (!title.trim()) {
@@ -94,10 +99,10 @@ export default function ExpensesScreen() {
       </View>
 
       <View style={s.body}>
-        <Text style={s.sectionTitle}>All Expenses</Text>
+        <Text style={s.sectionTitle}>{new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })} Expenses</Text>
 
         <FlatList
-          data={expenses}
+          data={thisMonthExpenses}
           keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}

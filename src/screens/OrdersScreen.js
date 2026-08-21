@@ -71,9 +71,6 @@ export default function OrdersScreen() {
           <Text style={s.headerSub}>{shopName}</Text>
           <Text style={s.headerTitle}>Orders</Text>
         </View>
-        <TouchableOpacity style={s.addBtn} onPress={() => router.push('/add-order')}>
-          <Text style={s.addBtnText}>+ Add</Text>
-        </TouchableOpacity>
       </View>
 
       <View style={s.body}>
@@ -113,8 +110,6 @@ const s = StyleSheet.create({
   menuBtn:        { width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' },
   headerSub:      { fontSize: 11, color: C.light, fontWeight: '500', textTransform: 'uppercase', letterSpacing: 0.6 },
   headerTitle:    { fontSize: 22, fontWeight: '800', color: '#fff' },
-  addBtn:         { backgroundColor: C.gold, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 10 },
-  addBtnText:     { color: '#fff', fontWeight: '700', fontSize: 13 },
   body:           { flex: 1, backgroundColor: C.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 20 },
   filterRow:      { flexDirection: 'row', gap: 8, paddingHorizontal: 20, marginBottom: 16 },
   filterChip:     { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 2, borderColor: C.border, backgroundColor: C.card },

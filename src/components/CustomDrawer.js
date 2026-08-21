@@ -11,7 +11,6 @@ const C = { green: '#1B4332', light: '#A7C4B5', textMid: '#4B5563', danger: '#DC
 const ITEMS = [
   { label: 'Dashboard',    icon: '🏠', route: '/(drawer)/'            },
   { label: 'Customers',    icon: '👥', route: '/(drawer)/customers'    },
-  { label: 'Measurements', icon: '📏', route: '/(drawer)/measurements' },
   { label: 'Orders',       icon: '📦', route: '/(drawer)/orders'       },
   { label: 'Payments',     icon: '💰', route: '/(drawer)/payments'     },
   { label: 'Expenses',     icon: '💸', route: '/(drawer)/expenses'     },
@@ -100,7 +99,7 @@ const s = StyleSheet.create({
   navIcon:        { fontSize: 20, width: 28, textAlign: 'center' },
   navLabel:       { fontSize: 15, fontWeight: '600', color: C.textMid },
   navLabelActive: { color: C.green },
-  footer:         { padding: 16, paddingBottom: 28, backgroundColor: '#FFFFFF' },
+  footer:         { padding: 16, paddingBottom: 52, backgroundColor: '#FFFFFF' },
   logoutBtn:      { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 13, borderRadius: 14, backgroundColor: '#FEE2E2' },
   logoutText:     { fontSize: 15, fontWeight: '700', color: C.danger },
 });

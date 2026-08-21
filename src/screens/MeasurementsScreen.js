@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { useNavigation, DrawerActions } from '@react-navigation/native';
+
 import { Storage, KEYS } from '../utils/storage';
 import useShopName from '../utils/useShopName';
 import { syncHelper } from '../utils/syncHelper';
@@ -41,7 +41,6 @@ const STATUS_BG     = { Pending: '#FFF3E0', Ready: '#ECFDF5', Delivered: '#F3F4F
 
 export default function MeasurementsScreen() {
   const shopName = useShopName();
-  const navigation = useNavigation();
   const { customerId: routeCustomerId } = useLocalSearchParams();
   const [customers,      setCustomers]      = useState([]);
   const [selectedCId,    setSelectedCId]    = useState(null);
@@ -116,8 +115,8 @@ export default function MeasurementsScreen() {
   return (
     <SafeAreaView style={s.safe}>
         <View style={s.header}>
-          <TouchableOpacity style={s.menuBtn} onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
-            <Text style={{ color: '#fff', fontSize: 22 }}>☰</Text>
+          <TouchableOpacity style={s.menuBtn} onPress={() => router.push('/(drawer)/customers')}>
+            <Text style={{ color: '#fff', fontSize: 20 }}>←</Text>
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
             <Text style={s.headerSub}>{shopName}</Text>
@@ -125,6 +124,12 @@ export default function MeasurementsScreen() {
               {selectedCustomer ? selectedCustomer.name : 'Measurements'}
             </Text>
           </View>
+          <TouchableOpacity
+            style={s.addOrderBtn}
+            onPress={() => router.push({ pathname: '/add-order', params: { preCustomerId: selectedCId } })}
+          >
+            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>+ Order</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={s.body}>
@@ -133,29 +138,6 @@ export default function MeasurementsScreen() {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            {/* ── Customer chips ── */}
-            <Text style={s.sectionLabel}>Select Customer</Text>
-            {customers.length === 0 ? (
-              <View style={s.noCustomerBox}>
-                <Text style={s.noCustomerText}>No customers yet. Add a customer first.</Text>
-                <TouchableOpacity style={s.addCustBtn} onPress={() => router.push('/add-customer')}>
-                  <Text style={s.addCustBtnText}>+ Add Customer</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
-                {customers.map(c => (
-                  <TouchableOpacity
-                    key={c.id}
-                    style={[s.chip, selectedCId === c.id && s.chipActive]}
-                    onPress={() => selectCustomer(c.id)}
-                  >
-                    <Text style={[s.chipText, selectedCId === c.id && s.chipTextActive]}>{c.name}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            )}
-
             {/* ── Gender tabs ── */}
             <View style={s.tabs}>
               <TouchableOpacity
@@ -249,6 +231,7 @@ export default function MeasurementsScreen() {
 const s = StyleSheet.create({
   safe:               { flex: 1, backgroundColor: C.green },
   header:             { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 24 },
+  addOrderBtn:  { backgroundColor: 'rgba(212,168,83,0.9)', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 9 },
   menuBtn:            { width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' },
   headerSub:          { fontSize: 11, color: C.light, fontWeight: '500', textTransform: 'uppercase', letterSpacing: 0.6 },
   headerTitle:        { fontSize: 22, fontWeight: '800', color: '#fff' },

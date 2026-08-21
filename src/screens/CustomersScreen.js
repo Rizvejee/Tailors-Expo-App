@@ -120,15 +120,16 @@ export default function CustomersScreen() {
           renderItem={({ item }) => {
             const orderCount = orders.filter(o => o.customerId === item.id).length;
             return (
-              <View style={s.card}>
-                <TouchableOpacity
-                  style={s.avatar}
-                  onPress={() => router.push({ pathname: '/(drawer)/measurements', params: { customerId: item.id } })}
-                >
+              <TouchableOpacity
+                style={s.card}
+                onPress={() => router.push({ pathname: '/measurements', params: { customerId: item.id } })}
+                activeOpacity={0.82}
+              >
+                <View style={s.avatar}>
                   <Text style={{ color: '#fff', fontWeight: '800', fontSize: 18 }}>
                     {item.name.charAt(0).toUpperCase()}
                   </Text>
-                </TouchableOpacity>
+                </View>
                 <View style={{ flex: 1 }}>
                   <Text style={s.name}>{item.name}</Text>
                   <Text style={s.phone}>{item.phone}</Text>
@@ -138,10 +139,10 @@ export default function CustomersScreen() {
                     </Text>
                   </View>
                 </View>
-                <TouchableOpacity onPress={() => deleteCustomer(item.id)} style={s.deleteBtn}>
+                <TouchableOpacity onPress={(e) => { e.stopPropagation(); deleteCustomer(item.id); }} style={s.deleteBtn}>
                   <Text style={{ fontSize: 18 }}>🗑</Text>
                 </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             );
           }}
         />

@@ -20,6 +20,7 @@ export default function RootLayout() {
       <Stack.Screen name="add-customer" />
       <Stack.Screen name="add-order" />
       <Stack.Screen name="order-detail/[id]" />
+      <Stack.Screen name="measurements" />
     </Stack>
     </>
   );

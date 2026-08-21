@@ -19,6 +19,7 @@ const CLOTH_TYPES = ['Shalwar Kameez','Pant Shirt','Sherwani','Waistcoat','Kurta
 
 export default function AddOrderScreen() {
   const shopName = useShopName();
+  const { preCustomerId } = useLocalSearchParams();
   const [customers,    setCustomers]    = useState([]);
   const [customerId,   setCustomerId]   = useState('');
   const [clothType,    setClothType]    = useState('');
@@ -33,7 +34,10 @@ export default function AddOrderScreen() {
   const hideAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
 
   useEffect(() => {
-    Storage.get(KEYS.CUSTOMERS).then(c => setCustomers(c || []));
+    Storage.get(KEYS.CUSTOMERS).then(c => {
+      setCustomers(c || []);
+      if (preCustomerId) setCustomerId(preCustomerId);
+    });
   }, []);
 
   const remaining = Math.max(0, (parseFloat(price) || 0) - (parseFloat(advance) || 0));
@@ -194,6 +198,8 @@ const s = StyleSheet.create({
   remainingBox:   { backgroundColor: '#ECFDF5', borderRadius: 12, padding: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   remainingLabel: { fontSize: 13, fontWeight: '600', color: C.mid },
   remainingValue: { fontSize: 16, fontWeight: '800', color: C.green },
+  lockedField:    { backgroundColor: C.bg, borderWidth: 1.5, borderColor: C.border, borderRadius: 13, paddingHorizontal: 16, paddingVertical: 13, marginBottom: 4 },
+  lockedText:     { fontSize: 15, fontWeight: '700', color: C.dark },
   saveBtn:        { backgroundColor: C.green, borderRadius: 16, paddingVertical: 18, alignItems: 'center', marginTop: 4 },
   saveBtnText:    { color: '#fff', fontSize: 16, fontWeight: '800' },
 });
