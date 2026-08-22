@@ -9,15 +9,16 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "backgroundColor": "#1B4332",
-          "imageWidth": 150
-        }
-      ]
-    ],
+  "expo-router",
+  [
+    "expo-splash-screen",
+    {
+      "backgroundColor": "#1B4332",
+      "image": "./assets/icon.png",
+      "imageWidth": 100
+    }
+  ]
+],
     "ios": {
       "supportsTablet": true
     },
@@ -36,8 +37,14 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "722d04a5-51ac-4f0e-bba8-5a7c3f8a9659"
+        "projectId": "645fbfb5-9f6f-4dea-ba39-16191763746c"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/645fbfb5-9f6f-4dea-ba39-16191763746c"
     }
   }
 }

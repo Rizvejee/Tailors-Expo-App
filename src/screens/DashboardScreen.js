@@ -63,7 +63,7 @@ export default function DashboardScreen() {
         <View style={s.navGrid}>
           <NavBtn label="Customers"    icon="👥" color={C.green}    onPress={() => router.push('/(drawer)/customers')} />
           <NavBtn label="Orders"       icon="📦" color={C.mid}      onPress={() => router.push('/(drawer)/orders')} />
-          <NavBtn label="Measurements" icon="📏" color={C.goldDark} onPress={() => router.push('/(drawer)/measurements')} />
+          <NavBtn label="Expenses"     icon="💸" color={C.goldDark} onPress={() => router.push('/(drawer)/expenses')} />
           <NavBtn label="Payments"     icon="💰" color="#92400E"    onPress={() => router.push('/(drawer)/payments')} />
         </View>
         <View style={s.legendCard}>

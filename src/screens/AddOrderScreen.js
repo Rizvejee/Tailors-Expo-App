@@ -82,20 +82,29 @@ export default function AddOrderScreen() {
         <View style={s.card}>
           <Text style={s.cardTitle}>ORDER DETAILS</Text>
           <Text style={s.label}>Customer</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 18 }}>
-            {customers.length === 0
-              ? <Text style={{ color: C.textLight, paddingVertical: 8 }}>No customers yet</Text>
-              : customers.map(c => (
-                <TouchableOpacity
-                  key={c.id}
-                  style={[s.chip, customerId === c.id && s.chipActive]}
-                  onPress={() => setCustomerId(c.id)}
-                >
-                  <Text style={[s.chipText, customerId === c.id && s.chipTextActive]}>{c.name}</Text>
-                </TouchableOpacity>
-              ))
-            }
-          </ScrollView>
+          {preCustomerId ? (
+            <View style={s.lockedField}>
+              <Text style={s.lockedText}>
+                {customers.find(c => c.id === customerId)?.name || '—'}
+              </Text>
+              <Text style={{ fontSize: 12, color: C.textLight }}>🔒</Text>
+            </View>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 18 }}>
+              {customers.length === 0
+                ? <Text style={{ color: C.textLight, paddingVertical: 8 }}>No customers yet</Text>
+                : customers.map(c => (
+                  <TouchableOpacity
+                    key={c.id}
+                    style={[s.chip, customerId === c.id && s.chipActive]}
+                    onPress={() => setCustomerId(c.id)}
+                  >
+                    <Text style={[s.chipText, customerId === c.id && s.chipTextActive]}>{c.name}</Text>
+                  </TouchableOpacity>
+                ))
+              }
+            </ScrollView>
+          )}
 
           <Text style={s.label}>Cloth Type</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 18 }}>

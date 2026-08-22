@@ -54,17 +54,24 @@ export default function MeasurementsScreen() {
   const showAlert = (title, message, buttons) => setAlertConfig({ visible: true, title, message, buttons });
   const hideAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
 
-  useFocusEffect(useCallback(() => { loadCustomers(); }, []));
+  useFocusEffect(useCallback(() => { loadCustomers(); }, [routeCustomerId]));
 
   const loadCustomers = async () => {
     const list = (await Storage.get(KEYS.CUSTOMERS)) || [];
     setCustomers(list);
     if (list.length === 0) { setSelectedCId(null); return; }
-    const preselect = routeCustomerId;
-    const firstId   = preselect && list.find(c => c.id === preselect) ? preselect : list[0].id;
-    setSelectedCId(firstId);
-    await loadMeasurements(firstId, gender);
-    await loadCustomerOrders(firstId);
+
+    // نیا customer آنے پر پہلے state reset کریں
+    setSelectedCId(null);
+    setValues({});
+    setCustomerOrders([]);
+
+    // صرف routeCustomerId ہو تو select کریں
+    if (routeCustomerId && list.find(c => c.id === routeCustomerId)) {
+      setSelectedCId(routeCustomerId);
+      await loadMeasurements(routeCustomerId, gender);
+      await loadCustomerOrders(routeCustomerId);
+    }
   };
 
   const selectCustomer = async (cId) => {
