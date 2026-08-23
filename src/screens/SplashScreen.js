@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
 import { router } from 'expo-router';
 import { Storage, KEYS } from '../utils/storage';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../services/firebase';
 
 const { width } = Dimensions.get('window');
 
@@ -25,9 +27,12 @@ export default function SplashScreen() {
       Animated.timing(dotsOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
     ]).start();
 
-    const timer = setTimeout(async () => {
-      const user = await Storage.get(KEYS.LOGGED_IN);
-      router.replace(user ? '/(drawer)/' : '/login');
+    const timer = setTimeout(() => {
+      // Firebase auth state check
+      const unsub = onAuthStateChanged(auth, (user) => {
+        unsub();
+        router.replace(user ? '/(drawer)/' : '/login');
+      });
     }, 2800);
 
     return () => clearTimeout(timer);

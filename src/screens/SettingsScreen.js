@@ -5,6 +5,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from 'firebase/auth';
+import { auth } from '../services/firebase';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { Storage, KEYS } from '../utils/storage';
 import useShopName from '../utils/useShopName';
@@ -67,7 +69,7 @@ export default function SettingsScreen() {
     }
   };
 
-  // ── Password change — AsyncStorage ──
+  // ── Password change — Firebase Auth ──
   const changePassword = async () => {
     if (!oldPass || !newPass || !confirmPass) {
       showAlert('Missing Info', 'Please fill all password fields.', [{ text: 'OK', style: 'confirm' }]); return;
@@ -80,20 +82,19 @@ export default function SettingsScreen() {
     }
     setLoading(true);
     try {
-      const users = (await Storage.get(KEYS.USERS)) || [];
-      const idx = users.findIndex(u => u.uid === user.uid);
-      if (idx === -1 || users[idx].password !== oldPass) {
-        setLoading(false);
-        showAlert('Wrong Password', 'Current password is incorrect.', [{ text: 'OK', style: 'confirm' }]); return;
-      }
-      users[idx].password = newPass;
-      await Storage.set(KEYS.USERS, users);
+      const currentUser = auth.currentUser;
+      const credential  = EmailAuthProvider.credential(currentUser.email, oldPass);
+      await reauthenticateWithCredential(currentUser, credential);
+      await updatePassword(currentUser, newPass);
       setOldPass(''); setNewPass(''); setConfirmPass('');
       setLoading(false);
       showAlert('Password Changed', 'Your password has been updated successfully.', [{ text: 'OK', style: 'confirm' }]);
     } catch (e) {
       setLoading(false);
-      showAlert('Error', 'Could not change password. Please try again.', [{ text: 'OK', style: 'confirm' }]);
+      const msg = e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential'
+        ? 'Current password is incorrect.'
+        : 'Could not change password. Please try again.';
+      showAlert('Error', msg, [{ text: 'OK', style: 'confirm' }]);
     }
   };
 
@@ -109,6 +110,8 @@ export default function SettingsScreen() {
           onPress: async () => {
             setLoading(true);
             try {
+              // Firebase account delete کریں
+              await deleteUser(auth.currentUser);
               // AsyncStorage سے سب data ہٹائیں
               await Promise.all([
                 Storage.remove(KEYS.LOGGED_IN),

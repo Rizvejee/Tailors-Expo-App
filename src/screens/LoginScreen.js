@@ -5,6 +5,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+  onAuthStateChanged,
+} from 'firebase/auth';
+import { auth } from '../services/firebase';
 import { Storage, KEYS } from '../utils/storage';
 import CustomAlert from '../components/CustomAlert';
 
@@ -30,32 +37,48 @@ export default function LoginScreen() {
   const showAlert = (title, message, buttons) => setAlertConfig({ visible: true, title, message, buttons });
   const hideAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
 
+  // Firebase Auth state check — پہلے سے logged in ہے تو dashboard
   useEffect(() => {
-    Storage.get(KEYS.LOGGED_IN).then(u => { if (u) router.replace('/(drawer)/'); });
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        await Storage.set(KEYS.LOGGED_IN, {
+          uid:   user.uid,
+          name:  user.displayName || user.email.split('@')[0],
+          email: user.email,
+        });
+        router.replace('/(drawer)/');
+      }
+    });
+    return () => unsub();
   }, []);
 
+  // ── Login ──
   const doLogin = async () => {
     if (!lEmail.trim() || !lPass) {
       showAlert('Missing Info', 'Please fill all fields.', [{ text: 'OK', style: 'confirm' }]); return;
     }
     setLoading(true);
     try {
-      const users = (await Storage.get(KEYS.USERS)) || [];
-      const found = users.find(
-        u => u.email.toLowerCase() === lEmail.trim().toLowerCase() && u.password === lPass
-      );
-      if (!found) {
-        setLoading(false);
-        showAlert('Login Failed', 'Incorrect email or password.', [{ text: 'Try Again', style: 'confirm' }]); return;
-      }
-      await Storage.set(KEYS.LOGGED_IN, { uid: found.uid, name: found.name, email: found.email });
+      const cred = await signInWithEmailAndPassword(auth, lEmail.trim(), lPass);
+      await Storage.set(KEYS.LOGGED_IN, {
+        uid:   cred.user.uid,
+        name:  cred.user.displayName || cred.user.email.split('@')[0],
+        email: cred.user.email,
+      });
       router.replace('/(drawer)/');
-    } catch {
+    } catch (e) {
       setLoading(false);
-      showAlert('Error', 'Something went wrong. Please try again.', [{ text: 'OK', style: 'confirm' }]);
+      const msg =
+        e.code === 'auth/user-not-found'   ? 'No account found with this email.' :
+        e.code === 'auth/wrong-password'   ? 'Incorrect password.' :
+        e.code === 'auth/invalid-email'    ? 'Invalid email address.' :
+        e.code === 'auth/invalid-credential' ? 'Incorrect email or password.' :
+        'Something went wrong. Please try again.';
+      showAlert('Login Failed', msg, [{ text: 'Try Again', style: 'confirm' }]);
     }
   };
 
+  // ── Signup ──
   const doSignup = async () => {
     if (!sName.trim() || !sEmail.trim() || !sPass || !sConf) {
       showAlert('Missing Info', 'Please fill all fields.', [{ text: 'OK', style: 'confirm' }]); return;
@@ -68,72 +91,83 @@ export default function LoginScreen() {
     }
     setLoading(true);
     try {
-      const users = (await Storage.get(KEYS.USERS)) || [];
-      if (users.find(u => u.email.toLowerCase() === sEmail.trim().toLowerCase())) {
-        setLoading(false);
-        showAlert('Already Registered', 'This email is already in use.', [{ text: 'OK', style: 'confirm' }]); return;
-      }
-      const newUser = { uid: Date.now().toString(), name: sName.trim(), email: sEmail.trim().toLowerCase(), password: sPass };
-      await Storage.set(KEYS.USERS, [...users, newUser]);
+      const cred = await createUserWithEmailAndPassword(auth, sEmail.trim(), sPass);
+      await updateProfile(cred.user, { displayName: sName.trim() });
+      await Storage.set(KEYS.LOGGED_IN, {
+        uid:   cred.user.uid,
+        name:  sName.trim(),
+        email: cred.user.email,
+      });
+      router.replace('/(drawer)/');
+    } catch (e) {
       setLoading(false);
-      showAlert('Account Created!', 'Your account is ready. Please login.', [
-        { text: 'Go to Login', style: 'confirm', onPress: () => {
-          setTab('login'); setSName(''); setSEmail(''); setSPass(''); setSConf('');
-        }},
-      ]);
-    } catch {
-      setLoading(false);
-      showAlert('Error', 'Something went wrong. Please try again.', [{ text: 'OK', style: 'confirm' }]);
+      const msg =
+        e.code === 'auth/email-already-in-use' ? 'This email is already registered.' :
+        e.code === 'auth/invalid-email'         ? 'Invalid email address.' :
+        e.code === 'auth/weak-password'         ? 'Password is too weak.' :
+        'Something went wrong. Please try again.';
+      showAlert('Sign Up Failed', msg, [{ text: 'OK', style: 'confirm' }]);
     }
   };
 
   return (
     <SafeAreaView style={s.safe}>
-        <View style={s.hero}>
-          <View style={s.logoCircle}><Text style={{ fontSize: 38 }}>🧵</Text></View>
-          <Text style={s.heroTitle}>Tailors</Text>
-          <Text style={s.heroSub}>Tailor Shop Management</Text>
+      <View style={s.hero}>
+        <View style={s.logoCircle}><Text style={{ fontSize: 38 }}>🧵</Text></View>
+        <Text style={s.heroTitle}>Tailors</Text>
+        <Text style={s.heroSub}>Tailor Shop Management</Text>
+      </View>
+
+      <ScrollView style={s.card} contentContainerStyle={{ paddingBottom: 48 }}
+        keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+
+        <View style={s.tabs}>
+          <TouchableOpacity style={[s.tab, tab === 'login'  && s.tabActive]} onPress={() => setTab('login')}>
+            <Text style={[s.tabText, tab === 'login'  && s.tabTextActive]}>Login</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[s.tab, tab === 'signup' && s.tabActive]} onPress={() => setTab('signup')}>
+            <Text style={[s.tabText, tab === 'signup' && s.tabTextActive]}>Sign Up</Text>
+          </TouchableOpacity>
         </View>
-        <ScrollView
-          style={s.card}
-          contentContainerStyle={{ paddingBottom: 48 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}>
-          <View style={s.tabs}>
-            <TouchableOpacity style={[s.tab, tab === 'login'  && s.tabActive]} onPress={() => setTab('login')}>
-              <Text style={[s.tabText, tab === 'login'  && s.tabTextActive]}>Login</Text>
+
+        {tab === 'login' ? (
+          <View>
+            <Field label="Email"    value={lEmail} onChange={setLEmail}
+              placeholder="you@example.com" keyboard="email-address" />
+            <PassField label="Password" value={lPass} onChange={setLPass}
+              show={showPass} toggle={() => setShowPass(p => !p)} />
+            <TouchableOpacity style={s.submitBtn} onPress={doLogin} disabled={loading}>
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.submitText}>Login</Text>}
             </TouchableOpacity>
-            <TouchableOpacity style={[s.tab, tab === 'signup' && s.tabActive]} onPress={() => setTab('signup')}>
-              <Text style={[s.tabText, tab === 'signup' && s.tabTextActive]}>Sign Up</Text>
+            <TouchableOpacity onPress={() => setTab('signup')}>
+              <Text style={s.switchText}>
+                Don't have an account? <Text style={s.switchLink}>Sign Up</Text>
+              </Text>
             </TouchableOpacity>
           </View>
-          {tab === 'login' ? (
-            <View>
-              <Field label="Email"    value={lEmail} onChange={setLEmail} placeholder="you@example.com" keyboard="email-address" />
-              <PassField label="Password" value={lPass} onChange={setLPass} show={showPass} toggle={() => setShowPass(p => !p)} />
-              <TouchableOpacity style={s.submitBtn} onPress={doLogin} disabled={loading}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.submitText}>Login</Text>}
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setTab('signup')}>
-                <Text style={s.switchText}>Don't have an account? <Text style={s.switchLink}>Sign Up</Text></Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View>
-              <Field label="Full Name" value={sName}  onChange={setSName}  placeholder="e.g. Rizwan Ahmed" />
-              <Field label="Email"     value={sEmail} onChange={setSEmail} placeholder="you@example.com" keyboard="email-address" />
-              <PassField label="Password"         value={sPass} onChange={setSPass} show={showPass}  toggle={() => setShowPass(p => !p)} />
-              <PassField label="Confirm Password" value={sConf} onChange={setSConf} show={showPass2} toggle={() => setShowPass2(p => !p)} />
-              <TouchableOpacity style={s.submitBtn} onPress={doSignup} disabled={loading}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.submitText}>Create Account</Text>}
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setTab('login')}>
-                <Text style={s.switchText}>Already have an account? <Text style={s.switchLink}>Login</Text></Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </ScrollView>
-      <CustomAlert visible={alertConfig.visible} title={alertConfig.title} message={alertConfig.message} buttons={alertConfig.buttons} onClose={hideAlert} />
+        ) : (
+          <View>
+            <Field label="Full Name" value={sName}  onChange={setSName}  placeholder="e.g. Rizwan" />
+            <Field label="Email"     value={sEmail} onChange={setSEmail}
+              placeholder="you@example.com" keyboard="email-address" />
+            <PassField label="Password"         value={sPass} onChange={setSPass}
+              show={showPass}  toggle={() => setShowPass(p => !p)} />
+            <PassField label="Confirm Password" value={sConf} onChange={setSConf}
+              show={showPass2} toggle={() => setShowPass2(p => !p)} />
+            <TouchableOpacity style={s.submitBtn} onPress={doSignup} disabled={loading}>
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.submitText}>Create Account</Text>}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setTab('login')}>
+              <Text style={s.switchText}>
+                Already have an account? <Text style={s.switchLink}>Login</Text>
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
+
+      <CustomAlert visible={alertConfig.visible} title={alertConfig.title}
+        message={alertConfig.message} buttons={alertConfig.buttons} onClose={hideAlert} />
     </SafeAreaView>
   );
 }
@@ -142,7 +176,9 @@ function Field({ label, value, onChange, placeholder, keyboard }) {
   return (
     <View style={s.group}>
       <Text style={s.label}>{label}</Text>
-      <TextInput style={s.input} value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor={C.textLight} keyboardType={keyboard || 'default'} autoCapitalize="none" />
+      <TextInput style={s.input} value={value} onChangeText={onChange}
+        placeholder={placeholder} placeholderTextColor={C.textLight}
+        keyboardType={keyboard || 'default'} autoCapitalize="none" />
     </View>
   );
 }
@@ -151,15 +187,19 @@ function PassField({ label, value, onChange, show, toggle }) {
     <View style={s.group}>
       <Text style={s.label}>{label}</Text>
       <View style={s.passWrap}>
-        <TextInput style={[s.input, { flex: 1, borderWidth: 0 }]} value={value} onChangeText={onChange} placeholder="••••••" placeholderTextColor={C.textLight} secureTextEntry={!show} autoCapitalize="none" />
-        <TouchableOpacity onPress={toggle} style={s.eyeBtn}><Text style={{ fontSize: 18 }}>{show ? '🙈' : '👁'}</Text></TouchableOpacity>
+        <TextInput style={[s.input, { flex: 1, borderWidth: 0 }]} value={value}
+          onChangeText={onChange} placeholder="••••••" placeholderTextColor={C.textLight}
+          secureTextEntry={!show} autoCapitalize="none" />
+        <TouchableOpacity onPress={toggle} style={s.eyeBtn}>
+          <Text style={{ fontSize: 18 }}>{show ? '🙈' : '👁'}</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  safe:          {  flex: 1, backgroundColor: C.green },
+  safe:          { flex: 1, backgroundColor: C.green },
   hero:          { alignItems: 'center', paddingTop: 32, paddingBottom: 24, backgroundColor: C.green },
   logoCircle:    { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.14)', alignItems: 'center', justifyContent: 'center', marginBottom: 14, borderWidth: 2, borderColor: 'rgba(255,255,255,0.18)' },
   heroTitle:     { fontSize: 30, fontWeight: '800', color: '#fff', marginBottom: 4 },
