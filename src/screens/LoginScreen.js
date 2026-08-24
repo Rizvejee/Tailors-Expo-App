@@ -9,7 +9,6 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
-  onAuthStateChanged,
 } from 'firebase/auth';
 import { auth } from '../services/firebase';
 import { Storage, KEYS } from '../utils/storage';
@@ -37,19 +36,11 @@ export default function LoginScreen() {
   const showAlert = (title, message, buttons) => setAlertConfig({ visible: true, title, message, buttons });
   const hideAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
 
-  // Firebase Auth state check — پہلے سے logged in ہے تو dashboard
+  // اگر پہلے سے logged in ہے تو dashboard
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        await Storage.set(KEYS.LOGGED_IN, {
-          uid:   user.uid,
-          name:  user.displayName || user.email.split('@')[0],
-          email: user.email,
-        });
-        router.replace('/(drawer)/');
-      }
+    Storage.get(KEYS.LOGGED_IN).then(u => {
+      if (u) router.replace('/(drawer)/');
     });
-    return () => unsub();
   }, []);
 
   // ── Login ──
@@ -93,12 +84,13 @@ export default function LoginScreen() {
     try {
       const cred = await createUserWithEmailAndPassword(auth, sEmail.trim(), sPass);
       await updateProfile(cred.user, { displayName: sName.trim() });
-      await Storage.set(KEYS.LOGGED_IN, {
-        uid:   cred.user.uid,
-        name:  sName.trim(),
-        email: cred.user.email,
-      });
-      router.replace('/(drawer)/');
+      setLoading(false);
+      // signup کے بعد login tab پر جائیں
+      setSName(''); setSEmail(''); setSPass(''); setSConf('');
+      setTab('login');
+      showAlert('Account Created!', 'Your account is ready. Please login.', [
+        { text: 'OK', style: 'confirm' },
+      ]);
     } catch (e) {
       setLoading(false);
       const msg =

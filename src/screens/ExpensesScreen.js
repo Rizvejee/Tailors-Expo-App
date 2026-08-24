@@ -3,7 +3,7 @@ import { useNavigation, DrawerActions } from '@react-navigation/native';
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, TouchableOpacity, FlatList,
-  StyleSheet, TextInput, ScrollView, Modal,
+  StyleSheet, TextInput, ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Storage, KEYS } from '../utils/storage';
@@ -131,9 +131,10 @@ export default function ExpensesScreen() {
         />
       </View>
 
-      {/* Add Expense Modal */}
-      <Modal visible={showModal} transparent animationType="slide">
-        <View style={s.modalOverlay}>
+      {/* Add Expense — Modal نہیں، absolute View */}
+      {showModal && (
+        <View style={s.overlay}>
+          <TouchableOpacity style={s.backdrop} onPress={() => { setShowModal(false); setTitle(''); setAmount(''); setCategory('Other'); }} activeOpacity={1} />
           <View style={s.modalCard}>
             <Text style={s.modalTitle}>Add Expense</Text>
 
@@ -141,6 +142,7 @@ export default function ExpensesScreen() {
             <TextInput
               style={s.input} value={title} onChangeText={setTitle}
               placeholder="e.g. Electricity bill" placeholderTextColor={C.textLight}
+              autoFocus
             />
 
             <Text style={s.label}>Amount (Rs.)</Text>
@@ -175,7 +177,7 @@ export default function ExpensesScreen() {
             </View>
           </View>
         </View>
-      </Modal>
+      )}
 
       <CustomAlert visible={alertConfig.visible} title={alertConfig.title}
         message={alertConfig.message} buttons={alertConfig.buttons} onClose={hideAlert} />
@@ -201,7 +203,8 @@ const s = StyleSheet.create({
   empty:        { alignItems: 'center', paddingTop: 60 },
   emptyTitle:   { fontSize: 16, fontWeight: '700', color: C.dark, marginTop: 14, marginBottom: 6 },
   emptySub:     { fontSize: 13, color: C.textLight },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  overlay:      { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'flex-end', zIndex: 999 },
+  backdrop:     { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' },
   modalCard:    { backgroundColor: C.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 28, paddingBottom: 40 },
   modalTitle:   { fontSize: 20, fontWeight: '800', color: C.dark, marginBottom: 20 },
   label:        { fontSize: 12, fontWeight: '700', color: C.textMid, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 },

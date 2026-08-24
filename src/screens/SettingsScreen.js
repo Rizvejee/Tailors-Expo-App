@@ -28,43 +28,48 @@ export default function SettingsScreen() {
   const [confirmPass, setConfirmPass] = useState('');
   const [showOld,     setShowOld]     = useState(false);
   const [showNew,     setShowNew]     = useState(false);
-  const [loading,     setLoading]     = useState(false);
+  const [loadingProfile,  setLoadingProfile]  = useState(false);
+  const [loadingPassword, setLoadingPassword] = useState(false);
+  const [editProfile,     setEditProfile]     = useState(false);
+  const [editPassword,    setEditPassword]    = useState(false);
   const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', buttons: [] });
 
   const showAlert = (title, message, buttons) => setAlertConfig({ visible: true, title, message, buttons });
   const hideAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
 
   useEffect(() => {
-    Storage.get(KEYS.LOGGED_IN).then(u => {
-      if (u) { setUser(u); setName(u.name || ''); }
-    });
+    const firebaseUser = auth.currentUser;
+    if (firebaseUser) {
+      const n = firebaseUser.displayName || firebaseUser.email.split('@')[0];
+      setName(n);
+      setUser({ uid: firebaseUser.uid, name: n, email: firebaseUser.email });
+    } else {
+      Storage.get(KEYS.LOGGED_IN).then(u => {
+        if (u) { setUser(u); setName(u.name || ''); }
+      });
+    }
   }, []);
 
-  // ── Profile update — Firebase Auth + AsyncStorage ──
+  // ── Profile update — Firebase updateProfile + AsyncStorage ──
   const saveProfile = async () => {
     if (!name.trim()) {
       showAlert('Missing Info', 'Name cannot be empty.', [{ text: 'OK', style: 'confirm' }]); return;
     }
-    setLoading(true);
+    setLoadingProfile(true);
     try {
-      const updatedUser = { ...user, name: name.trim() };
-
-      // LOGGED_IN update کریں
-      await Storage.set(KEYS.LOGGED_IN, updatedUser);
-
-      // USERS list میں بھی name update کریں
-      const users = (await Storage.get(KEYS.USERS)) || [];
-      const idx = users.findIndex(u => u.uid === user.uid);
-      if (idx !== -1) {
-        users[idx].name = name.trim();
-        await Storage.set(KEYS.USERS, users);
+      // Firebase میں displayName update کریں
+      if (auth.currentUser) {
+        const { updateProfile: fbUpdateProfile } = await import('firebase/auth');
+        await fbUpdateProfile(auth.currentUser, { displayName: name.trim() });
       }
-
+      const updatedUser = { ...user, name: name.trim() };
+      await Storage.set(KEYS.LOGGED_IN, updatedUser);
       setUser(updatedUser);
-      setLoading(false);
+      setLoadingProfile(false);
+      setEditProfile(false);
       showAlert('Profile Updated', 'Your name has been updated successfully.', [{ text: 'OK', style: 'confirm' }]);
     } catch (e) {
-      setLoading(false);
+      setLoadingProfile(false);
       showAlert('Error', 'Could not update profile. Please try again.', [{ text: 'OK', style: 'confirm' }]);
     }
   };
@@ -80,17 +85,18 @@ export default function SettingsScreen() {
     if (newPass !== confirmPass) {
       showAlert('Mismatch', 'Passwords do not match.', [{ text: 'OK', style: 'confirm' }]); return;
     }
-    setLoading(true);
+    setLoadingPassword(true);
     try {
       const currentUser = auth.currentUser;
       const credential  = EmailAuthProvider.credential(currentUser.email, oldPass);
       await reauthenticateWithCredential(currentUser, credential);
       await updatePassword(currentUser, newPass);
       setOldPass(''); setNewPass(''); setConfirmPass('');
-      setLoading(false);
+      setLoadingPassword(false);
+      setEditPassword(false);
       showAlert('Password Changed', 'Your password has been updated successfully.', [{ text: 'OK', style: 'confirm' }]);
     } catch (e) {
-      setLoading(false);
+      setLoadingPassword(false);
       const msg = e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential'
         ? 'Current password is incorrect.'
         : 'Could not change password. Please try again.';
@@ -108,7 +114,7 @@ export default function SettingsScreen() {
         {
           text: 'Delete Account', style: 'destructive',
           onPress: async () => {
-            setLoading(true);
+            setLoadingProfile(true);
             try {
               // Firebase account delete کریں
               await deleteUser(auth.currentUser);
@@ -122,7 +128,7 @@ export default function SettingsScreen() {
               ]);
               router.replace('/login');
             } catch (e) {
-              setLoading(false);
+              setLoadingProfile(false);
               showAlert('Error', 'Could not delete account. Please try again.', [{ text: 'OK', style: 'confirm' }]);
             }
           },
@@ -153,7 +159,12 @@ export default function SettingsScreen() {
         >
           {/* Profile card */}
           <View style={s.card}>
-            <Text style={s.cardTitle}>PROFILE</Text>
+            <View style={s.cardTitleRow}>
+              <Text style={s.cardTitle}>PROFILE</Text>
+              <TouchableOpacity onPress={() => setEditProfile(p => !p)} style={s.editBtn}>
+                <Text style={s.editBtnText}>{editProfile ? 'Cancel' : '✏️ Edit'}</Text>
+              </TouchableOpacity>
+            </View>
             <View style={s.avatarWrap}>
               <View style={s.avatar}>
                 <Text style={s.avatarText}>
@@ -165,43 +176,56 @@ export default function SettingsScreen() {
                 <Text style={s.profileEmail}>{user.email}</Text>
               </View>
             </View>
-            <View style={s.group}>
-              <Text style={s.label}>Full Name</Text>
-              <TextInput
-                style={s.input} value={name} onChangeText={setName}
-                placeholder="Your name" placeholderTextColor={C.textLight}
-                autoCapitalize="words"
-              />
-            </View>
-            <TouchableOpacity style={s.saveBtn} onPress={saveProfile} disabled={loading}>
-              {loading
-                ? <ActivityIndicator color="#fff" />
-                : <Text style={s.saveBtnText}>Save Profile</Text>
-              }
-            </TouchableOpacity>
+            {editProfile && (
+              <>
+                <View style={s.group}>
+                  <Text style={s.label}>Full Name</Text>
+                  <TextInput
+                    style={s.input} value={name} onChangeText={setName}
+                    placeholder="Your name" placeholderTextColor={C.textLight}
+                    autoCapitalize="words"
+                  />
+                </View>
+                <TouchableOpacity style={s.saveBtn} onPress={saveProfile} disabled={loadingProfile}>
+                  {loadingProfile
+                    ? <ActivityIndicator color="#fff" />
+                    : <Text style={s.saveBtnText}>Save Profile</Text>
+                  }
+                </TouchableOpacity>
+              </>
+            )}
           </View>
 
           {/* Password card */}
           <View style={s.card}>
-            <Text style={s.cardTitle}>CHANGE PASSWORD</Text>
-            <PassField
-              label="Current Password" value={oldPass} onChange={setOldPass}
-              show={showOld} toggle={() => setShowOld(p => !p)}
-            />
-            <PassField
-              label="New Password" value={newPass} onChange={setNewPass}
-              show={showNew} toggle={() => setShowNew(p => !p)}
-            />
-            <PassField
-              label="Confirm New Password" value={confirmPass} onChange={setConfirmPass}
-              show={showNew} toggle={() => setShowNew(p => !p)}
-            />
-            <TouchableOpacity style={s.saveBtn} onPress={changePassword} disabled={loading}>
-              {loading
-                ? <ActivityIndicator color="#fff" />
-                : <Text style={s.saveBtnText}>Change Password</Text>
-              }
-            </TouchableOpacity>
+            <View style={s.cardTitleRow}>
+              <Text style={s.cardTitle}>CHANGE PASSWORD</Text>
+              <TouchableOpacity onPress={() => setEditPassword(p => !p)} style={s.editBtn}>
+                <Text style={s.editBtnText}>{editPassword ? 'Cancel' : '✏️ Edit'}</Text>
+              </TouchableOpacity>
+            </View>
+            {editPassword && (
+              <>
+                <PassField
+                  label="Current Password" value={oldPass} onChange={setOldPass}
+                  show={showOld} toggle={() => setShowOld(p => !p)}
+                />
+                <PassField
+                  label="New Password" value={newPass} onChange={setNewPass}
+                  show={showNew} toggle={() => setShowNew(p => !p)}
+                />
+                <PassField
+                  label="Confirm New Password" value={confirmPass} onChange={setConfirmPass}
+                  show={showNew} toggle={() => setShowNew(p => !p)}
+                />
+                <TouchableOpacity style={s.saveBtn} onPress={changePassword} disabled={loadingPassword}>
+                  {loadingPassword
+                    ? <ActivityIndicator color="#fff" />
+                    : <Text style={s.saveBtnText}>Change Password</Text>
+                  }
+                </TouchableOpacity>
+              </>
+            )}
           </View>
 
           {/* Danger zone */}
@@ -210,7 +234,7 @@ export default function SettingsScreen() {
             <Text style={s.dangerSub}>
               Permanently deletes your account and all data. Cannot be undone.
             </Text>
-            <TouchableOpacity style={s.deleteBtn} onPress={deleteAccount} disabled={loading}>
+            <TouchableOpacity style={s.deleteBtn} onPress={deleteAccount} disabled={loadingProfile}>
               <Text style={s.deleteBtnText}>Delete My Account</Text>
             </TouchableOpacity>
           </View>

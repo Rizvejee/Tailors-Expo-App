@@ -4,6 +4,8 @@ import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Storage, KEYS } from '../utils/storage';
+import { signOut } from 'firebase/auth';
+import { auth } from '../services/firebase';
 import CustomAlert from './CustomAlert';
 
 const C = { green: '#1B4332', light: '#A7C4B5', textMid: '#4B5563', danger: '#DC2626' };
@@ -29,12 +31,21 @@ export default function CustomDrawer(props) {
   const active = props.state.routeNames[props.state.index];
 
   useEffect(() => {
-    Storage.get(KEYS.LOGGED_IN).then(u => {
-      if (u) {
-        setUserName(u.name || u.email || '');
-        setShopName((u.name || 'My') + ' Tailors');
-      }
-    });
+    // Firebase currentUser سے تازہ name لیں
+    const firebaseUser = auth.currentUser;
+    if (firebaseUser) {
+      const name = firebaseUser.displayName || firebaseUser.email.split('@')[0];
+      setUserName(name);
+      setShopName(name + ' Tailors');
+    } else {
+      // fallback AsyncStorage
+      Storage.get(KEYS.LOGGED_IN).then(u => {
+        if (u) {
+          setUserName(u.name || u.email || '');
+          setShopName((u.name || 'My') + ' Tailors');
+        }
+      });
+    }
   }, []);
 
   const logout = () => {
@@ -43,6 +54,7 @@ export default function CustomDrawer(props) {
       {
         text: 'Logout', style: 'destructive',
         onPress: async () => {
+          await signOut(auth);
           await Storage.remove(KEYS.LOGGED_IN);
           router.replace('/login');
         },
