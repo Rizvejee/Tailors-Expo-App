@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from 'firebase/auth';
+import { signOut, updatePassword, updateProfile as fbUpdateProfile, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from 'firebase/auth';
 import { auth } from '../services/firebase';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { Storage, KEYS } from '../utils/storage';
@@ -59,7 +59,6 @@ export default function SettingsScreen() {
     try {
       // Firebase میں displayName update کریں
       if (auth.currentUser) {
-        const { updateProfile: fbUpdateProfile } = await import('firebase/auth');
         await fbUpdateProfile(auth.currentUser, { displayName: name.trim() });
       }
       const updatedUser = { ...user, name: name.trim() };
@@ -159,22 +158,20 @@ export default function SettingsScreen() {
         >
           {/* Profile card */}
           <View style={s.card}>
-            <View style={s.cardTitleRow}>
-              <Text style={s.cardTitle}>PROFILE</Text>
-              <TouchableOpacity onPress={() => setEditProfile(p => !p)} style={s.editBtn}>
-                <Text style={s.editBtnText}>{editProfile ? 'Cancel' : '✏️ Edit'}</Text>
-              </TouchableOpacity>
-            </View>
+            <Text style={s.cardTitle}>PROFILE</Text>
             <View style={s.avatarWrap}>
               <View style={s.avatar}>
                 <Text style={s.avatarText}>
                   {(user.name || user.email || 'U').charAt(0).toUpperCase()}
                 </Text>
               </View>
-              <View>
+              <View style={{ flex: 1 }}>
                 <Text style={s.profileName}>{user.name || 'No name'}</Text>
                 <Text style={s.profileEmail}>{user.email}</Text>
               </View>
+              <TouchableOpacity onPress={() => setEditProfile(p => !p)} style={s.editBtn}>
+                <Text style={s.editBtnText}>{editProfile ? 'Cancel' : '✏️ Edit'}</Text>
+              </TouchableOpacity>
             </View>
             {editProfile && (
               <>
@@ -198,7 +195,7 @@ export default function SettingsScreen() {
 
           {/* Password card */}
           <View style={s.card}>
-            <View style={s.cardTitleRow}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <Text style={s.cardTitle}>CHANGE PASSWORD</Text>
               <TouchableOpacity onPress={() => setEditPassword(p => !p)} style={s.editBtn}>
                 <Text style={s.editBtnText}>{editPassword ? 'Cancel' : '✏️ Edit'}</Text>

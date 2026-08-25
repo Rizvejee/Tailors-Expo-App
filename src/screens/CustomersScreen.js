@@ -75,6 +75,7 @@ export default function CustomersScreen() {
             syncHelper.saveOrders(newO),
             syncHelper.saveMeasurements(newM),
             syncHelper.saveTrash(trash),
+            syncHelper.deleteCustomer(id),
           ]);
           setCustomers(newC);
           setOrders(newO);

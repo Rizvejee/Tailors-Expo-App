@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../services/firebase';
 import { Storage, KEYS } from '../utils/storage';
+import { syncFromFirestore } from '../services/firestore';
 import CustomAlert from '../components/CustomAlert';
 
 const C = {
@@ -51,11 +52,21 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       const cred = await signInWithEmailAndPassword(auth, lEmail.trim(), lPass);
+      const name = cred.user.displayName || cred.user.email.split('@')[0];
       await Storage.set(KEYS.LOGGED_IN, {
         uid:   cred.user.uid,
-        name:  cred.user.displayName || cred.user.email.split('@')[0],
+        name,
         email: cred.user.email,
       });
+      // Firestore سے data sync کریں
+      try {
+        const { customers, orders, measurements, expenses, trash } = await syncFromFirestore();
+        if (customers.length)             await Storage.set(KEYS.CUSTOMERS,    customers);
+        if (orders.length)                await Storage.set(KEYS.ORDERS,       orders);
+        if (Object.keys(measurements).length) await Storage.set(KEYS.MEASUREMENTS, measurements);
+        if (expenses.length)              await Storage.set(KEYS.EXPENSES,     expenses);
+        if (trash.length)                 await Storage.set(KEYS.TRASH,        trash);
+      } catch {}
       router.replace('/(drawer)/');
     } catch (e) {
       setLoading(false);

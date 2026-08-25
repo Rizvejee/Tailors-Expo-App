@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { Storage, KEYS } from '../utils/storage';
 import { signOut } from 'firebase/auth';
 import { auth } from '../services/firebase';
@@ -30,15 +30,14 @@ export default function CustomDrawer(props) {
 
   const active = props.state.routeNames[props.state.index];
 
-  useEffect(() => {
-    // Firebase currentUser سے تازہ name لیں
+  useFocusEffect(React.useCallback(() => {
+    // ہر بار drawer کھلے تو Firebase سے تازہ name لیں
     const firebaseUser = auth.currentUser;
     if (firebaseUser) {
       const name = firebaseUser.displayName || firebaseUser.email.split('@')[0];
       setUserName(name);
       setShopName(name + ' Tailors');
     } else {
-      // fallback AsyncStorage
       Storage.get(KEYS.LOGGED_IN).then(u => {
         if (u) {
           setUserName(u.name || u.email || '');
@@ -46,7 +45,7 @@ export default function CustomDrawer(props) {
         }
       });
     }
-  }, []);
+  }, []));
 
   const logout = () => {
     showAlert('Logout', 'Are you sure you want to logout?', [

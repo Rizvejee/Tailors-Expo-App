@@ -57,7 +57,7 @@ export default function TrashScreen() {
               await syncHelper.saveOrders([...allOrders, ..._orders]);
             }
 
-            // measurements واپس لائیں
+            // measurements واپس لائیں اور Firestore میں بھی save کریں
             if (_measurements) {
               const allM = (await Storage.get(KEYS.MEASUREMENTS)) || {};
               allM[item.id] = _measurements;
@@ -79,18 +79,22 @@ export default function TrashScreen() {
           const trash    = (await Storage.get(KEYS.TRASH)) || [];
           const newTrash = trash.filter(t => t.id !== item.id);
           await syncHelper.saveTrash(newTrash);
+          await syncHelper.deleteTrashItem(item.id);
 
-          // customer کا باقی data بھی مٹائیں (اگر trash میں نہیں تھا)
           if (item.type === 'customer') {
             const allOrders = (await Storage.get(KEYS.ORDERS)) || [];
             const filtered  = allOrders.filter(o => o.customerId !== item.id);
             if (filtered.length !== allOrders.length) {
               await syncHelper.saveOrders(filtered);
+              // Firestore سے orders بھی ہٹائیں
+              const deletedOrders = allOrders.filter(o => o.customerId === item.id);
+              await Promise.all(deletedOrders.map(o => syncHelper.deleteOrder(o.id)));
             }
             const allM = (await Storage.get(KEYS.MEASUREMENTS)) || {};
             if (allM[item.id]) {
               delete allM[item.id];
               await syncHelper.saveMeasurements(allM);
+              await syncHelper.deleteMeasurement(item.id);
             }
           }
           loadTrash();

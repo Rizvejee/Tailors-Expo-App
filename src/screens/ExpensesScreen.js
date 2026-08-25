@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Storage, KEYS } from '../utils/storage';
+import { syncHelper } from '../utils/syncHelper';
 import useShopName from '../utils/useShopName';
 import CustomAlert from '../components/CustomAlert';
 
