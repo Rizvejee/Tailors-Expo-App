@@ -43,6 +43,7 @@ export default function TrashScreen() {
           const trash    = (await Storage.get(KEYS.TRASH)) || [];
           const newTrash = trash.filter(t => t.id !== item.id);
           await syncHelper.saveTrash(newTrash);
+          await syncHelper.deleteTrashItem(item.id); // Firestore trash سے بھی ہٹائیں
 
           if (item.type === 'customer') {
             // customer واپس لائیں

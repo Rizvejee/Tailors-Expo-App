@@ -62,7 +62,7 @@ export default function ExpensesScreen() {
       date:     new Date().toISOString(),
     };
     const updated = [newExpense, ...expenses];
-    await Storage.set(KEYS.EXPENSES, updated);
+    await syncHelper.saveExpenses(updated);
     setExpenses(updated);
     setTitle(''); setAmount(''); setCategory('Other');
     setShowModal(false);
@@ -73,7 +73,8 @@ export default function ExpensesScreen() {
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete', style: 'destructive', onPress: async () => {
         const updated = expenses.filter(e => e.id !== id);
-        await Storage.set(KEYS.EXPENSES, updated);
+        await syncHelper.saveExpenses(updated);
+        await syncHelper.deleteExpense(id);
         setExpenses(updated);
       }},
     ]);

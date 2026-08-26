@@ -1,11 +1,9 @@
-// Firestore helper — تمام CRUD operations
 import {
   collection, doc, setDoc, getDoc, getDocs,
   deleteDoc, serverTimestamp,
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
 
-// Current user کی collection کا reference
 const userCol = (colName) => {
   const uid = auth.currentUser?.uid;
   if (!uid) throw new Error('Not logged in');
@@ -22,10 +20,10 @@ const userDoc = (colName, docId) => {
 export const fsCustomers = {
   save: async (customer) => {
     await setDoc(userDoc('customers', customer.id), {
-      ...customer,
-      updatedAt: serverTimestamp(),
+      ...customer, updatedAt: serverTimestamp(),
     });
   },
+  // صرف وہ document update جو بدلا ہے
   saveAll: async (customers) => {
     await Promise.all(customers.map(c => fsCustomers.save(c)));
   },
@@ -42,8 +40,7 @@ export const fsCustomers = {
 export const fsOrders = {
   save: async (order) => {
     await setDoc(userDoc('orders', order.id), {
-      ...order,
-      updatedAt: serverTimestamp(),
+      ...order, updatedAt: serverTimestamp(),
     });
   },
   saveAll: async (orders) => {
@@ -62,9 +59,7 @@ export const fsOrders = {
 export const fsMeasurements = {
   save: async (customerId, data) => {
     await setDoc(userDoc('measurements', customerId), {
-      ...data,
-      customerId,
-      updatedAt: serverTimestamp(),
+      ...data, customerId, updatedAt: serverTimestamp(),
     });
   },
   saveAll: async (measurementsObj) => {
@@ -80,19 +75,16 @@ export const fsMeasurements = {
     snap.docs.forEach(d => { result[d.id] = d.data(); });
     return result;
   },
-};
-
-// ── Measurements delete ──
-fsMeasurements.delete = async (customerId) => {
-  await deleteDoc(userDoc('measurements', customerId));
+  delete: async (customerId) => {
+    await deleteDoc(userDoc('measurements', customerId));
+  },
 };
 
 // ── Expenses ──
 export const fsExpenses = {
   save: async (expense) => {
     await setDoc(userDoc('expenses', expense.id), {
-      ...expense,
-      updatedAt: serverTimestamp(),
+      ...expense, updatedAt: serverTimestamp(),
     });
   },
   saveAll: async (expenses) => {
@@ -111,8 +103,7 @@ export const fsExpenses = {
 export const fsTrash = {
   save: async (item) => {
     await setDoc(userDoc('trash', item.id), {
-      ...item,
-      updatedAt: serverTimestamp(),
+      ...item, updatedAt: serverTimestamp(),
     });
   },
   saveAll: async (items) => {
@@ -127,8 +118,7 @@ export const fsTrash = {
   },
 };
 
-// ── First Login Sync — Firestore سے AsyncStorage میں ──
-// جب user login کرے تو Firestore سے data لے کر local میں save کرے
+// ── Login sync — Firestore سے AsyncStorage میں ──
 export const syncFromFirestore = async () => {
   const [customers, orders, measurements, expenses, trash] = await Promise.all([
     fsCustomers.getAll(),
