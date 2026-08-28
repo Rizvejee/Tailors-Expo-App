@@ -1,57 +1,52 @@
 import { Storage, KEYS } from './storage';
-import { auth } from '../services/firebase';
-import {
-  fsCustomers, fsOrders, fsMeasurements,
-  fsExpenses, fsTrash,
-} from '../services/firestore';
-
-const isLoggedIn = () => !!auth.currentUser;
 
 export const syncHelper = {
 
   saveCustomers: async (data) => {
     await Storage.set(KEYS.CUSTOMERS, data);
-    if (isLoggedIn()) { try { await fsCustomers.saveAll(data); } catch {} }
   },
 
   saveOrders: async (data) => {
     await Storage.set(KEYS.ORDERS, data);
-    if (isLoggedIn()) { try { await fsOrders.saveAll(data); } catch {} }
   },
 
   saveMeasurements: async (data) => {
     await Storage.set(KEYS.MEASUREMENTS, data);
-    if (isLoggedIn()) { try { await fsMeasurements.saveAll(data); } catch {} }
   },
 
   saveExpenses: async (data) => {
     await Storage.set(KEYS.EXPENSES, data);
-    if (isLoggedIn()) { try { await fsExpenses.saveAll(data); } catch {} }
   },
 
   saveTrash: async (data) => {
     await Storage.set(KEYS.TRASH, data);
-    if (isLoggedIn()) { try { await fsTrash.saveAll(data); } catch {} }
   },
 
-  // ── Delete operations ──
+  // Delete operations — AsyncStorage میں array سے item ہٹانا
   deleteCustomer: async (id) => {
-    if (isLoggedIn()) { try { await fsCustomers.delete(id); } catch {} }
+    const all = await Storage.get(KEYS.CUSTOMERS) || [];
+    await Storage.set(KEYS.CUSTOMERS, all.filter(c => c.id !== id));
   },
 
   deleteOrder: async (id) => {
-    if (isLoggedIn()) { try { await fsOrders.delete(id); } catch {} }
+    const all = await Storage.get(KEYS.ORDERS) || [];
+    await Storage.set(KEYS.ORDERS, all.filter(o => o.id !== id));
   },
 
   deleteExpense: async (id) => {
-    if (isLoggedIn()) { try { await fsExpenses.delete(id); } catch {} }
+    const all = await Storage.get(KEYS.EXPENSES) || [];
+    await Storage.set(KEYS.EXPENSES, all.filter(e => e.id !== id));
   },
 
   deleteTrashItem: async (id) => {
-    if (isLoggedIn()) { try { await fsTrash.delete(id); } catch {} }
+    const all = await Storage.get(KEYS.TRASH) || [];
+    await Storage.set(KEYS.TRASH, all.filter(t => t.id !== id));
   },
 
   deleteMeasurement: async (customerId) => {
-    if (isLoggedIn()) { try { await fsMeasurements.delete(customerId); } catch {} }
+    const all = await Storage.get(KEYS.MEASUREMENTS) || {};
+    const updated = { ...all };
+    delete updated[customerId];
+    await Storage.set(KEYS.MEASUREMENTS, updated);
   },
 };
