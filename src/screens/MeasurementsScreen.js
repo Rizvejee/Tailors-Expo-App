@@ -22,9 +22,10 @@ const MALE_FIELDS = [
   { key: 'sleeve',         label: 'Sleeve' },
   { key: 'shoulder',       label: 'Shoulder' },
   { key: 'collar',         label: 'Collar / Baan' },
+  { key: 'daman',          label: 'Daman' },
   { key: 'shalwar_length', label: 'Shalwar Length' },
   { key: 'mohri',          label: 'Mohri (Bottom)' },
-  { key: 'daman',          label: 'Daman' },
+  
 ];
 const FEMALE_FIELDS = [
   { key: 'kameez_length',  label: 'Kameez Length' },
